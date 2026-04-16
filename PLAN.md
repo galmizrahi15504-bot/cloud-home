@@ -1,184 +1,259 @@
-# 🗺️ The 6-Month Plan — Gal's Virtual World
+# 🗺️ The Master Plan — Gal's Virtual World
 
-> Simple. Phased. Ready for upgrade at month 6.
+> Start cloud. Learn it. Go hardware. Pay almost nothing forever.
 > Created: April 2026
 
 ---
 
-## 🖥️ Your New Computer = The Remote Control
+## 🎯 The Strategy
 
-Your computer is just the door to your virtual world. Everything important lives in the cloud. Computer breaks? Buy a new one, log in, everything's there.
+```
+  NOW          Month 1-6              Month 6+              Forever
+   │               │                     │                    │
+   ▼               ▼                     ▼                    ▼
+Buy laptop → Cloud on Hetzner → Buy mini PC for home → ~€4.50/month
+ (~$900)      (~€10/month)        (~$150 one-time)      (electricity
+              Learn everything     Move everything         + domain
+              Risk-free             from cloud → home       + backup)
+```
+
+**Why this order:**
+1. Don't stack two hardware purchases at once (laptop + mini PC)
+2. Learn the system risk-free in the cloud first (mess up? rebuild in 5 min)
+3. By month 6 you'll know exactly what you need
+4. Then go hardware and drop to ~€4.50/month for the next decade
 
 ---
 
-## Month 1 — The Foundation (~€25 one-time + ~€13/month)
+## 💰 The Full Money Picture
 
-**Goal: Your cloud exists and the essentials are running.**
+### Phase 1: Cloud (Months 1-6)
 
-### Buy These:
-- [ ] **Domain name** — Cloudflare Registrar (~$12/year). Pick something personal.
-- [ ] **Hetzner VPS** — CAX21 (4 ARM cores, 8GB RAM, 80GB) = **€4.50/month** to start
-- [ ] **Hetzner Storage Box** — BX11 (1TB) = **€3.80/month** for backups + media
+| Item | Cost |
+|---|---|
+| Framework 13 laptop | ~$900 (one-time) |
+| Hetzner VPS (6 months) | €27 |
+| Hetzner Storage Box (6 months) | €23 |
+| Domain name (1 year) | €12 |
+| Backblaze B2 backup (6 months) | €3 |
+| **Phase 1 total** | **~$900 laptop + ~€65 cloud** |
 
-### Set Up:
+### Phase 2: Move Home (Month 6)
+
+| Item | Cost |
+|---|---|
+| Intel N100 Mini PC (16GB, 500GB) | ~$150 (one-time) |
+| External HDD 2TB (media/photos) | ~$60 (one-time) |
+| Cancel Hetzner VPS | -€4.50/mo saved |
+| Cancel Storage Box | -€3.80/mo saved |
+| **Phase 2 total** | **~$210 one-time** |
+
+### Phase 3: Forever (Month 7+)
+
+| Item | Monthly Cost |
+|---|---|
+| Electricity (mini PC, 15W 24/7) | ~€3-4 |
+| Domain name | ~€1 |
+| Offsite backup (Backblaze) | ~€0.50 |
+| **Monthly forever** | **~€4.50** |
+
+### Total Cost Summary
+
+| Period | Total Spent |
+|---|---|
+| **Year 1** | $900 (laptop) + $210 (mini PC) + ~€120 (cloud+home running) = **~$1,240** |
+| **Year 2** | ~€54 (~$60) — just electricity, domain, backup |
+| **Year 3** | ~€54 (~$60) |
+| **Year 10** | Still ~€54/year. Mini PC still running. |
+
+### What You'd Pay Big Tech Instead
+
+| Period | Subscriptions (Google+Netflix+Spotify+1Password+ChatGPT+etc) |
+|---|---|
+| Year 1 | ~$1,128 |
+| Year 2 | ~$1,128 |
+| Year 10 | ~$11,280 total |
+
+**Your 10-year cost: ~$1,750.** Their 10-year cost: **~$11,280.** You save ~$9,500 and own everything.
+
+---
+
+## 📅 Month-by-Month Walkthrough
+
+### Month 1 — The Foundation
+
+**Goal: Your cloud exists. Essentials running.**
+
+Buy:
+- [ ] Domain name — Cloudflare Registrar (~$12/year)
+- [ ] Hetzner VPS — CAX21 (4 ARM cores, 8GB RAM) = €4.50/month
+- [ ] Hetzner Storage Box — BX11 (1TB) = €3.80/month
+
+Set up:
 - [ ] Run `setup.sh` on fresh server (10 min)
 - [ ] Run `generate-secrets.sh` (1 min)
 - [ ] Edit `.env` with your domain (5 min)
 - [ ] Set up Authelia user (5 min)
-- [ ] Run `start.sh` — core + data services only (2 min)
+- [ ] Run `start.sh` — core + data services (2 min)
 - [ ] Run `harden.sh` for security (5 min)
 
-### You Now Have:
-- ✅ **Vaultwarden** — password manager (move ALL your passwords here first!)
-- ✅ **Nextcloud** — your files, calendar, contacts (install phone app, start syncing)
-- ✅ **Authelia** — single login with 2FA for everything
+You now have:
+- ✅ **Vaultwarden** — password manager (migrate ALL passwords here first!)
+- ✅ **Nextcloud** — files, calendar, contacts
+- ✅ **Authelia** — single login with 2FA
 - ✅ **AdGuard** — ad blocking
 - ✅ **Uptime Kuma** — monitoring
-- ✅ Automated daily backups running
+- ✅ Automated daily backups
 
-### First Week Habits:
-1. Install Bitwarden app → connect to your Vaultwarden → migrate all passwords
-2. Install Nextcloud app on phone → move important files from Google Drive
-3. Set up 2FA on everything using Authelia
+First week habits:
+1. Install Bitwarden app → connect to Vaultwarden → migrate passwords
+2. Install Nextcloud app on phone → move files from Google Drive
+3. Set up 2FA on everything
 
 ---
 
-## Month 2 — Your Photos & Security (~€0 extra)
+### Month 2 — Photos & Security
 
-**Goal: Free yourself from Google Photos. Lock down the fortress.**
+**Goal: Free from Google Photos. Fortress locked down.**
 
-### Set Up:
-- [ ] Start Immich (add to data compose, or it's already there)
-- [ ] Install Immich app on phone → start uploading photos
+- [ ] Start Immich → install app on phone → upload photos
 - [ ] Set up Cloudflare Tunnel (free) → close all public ports
-- [ ] Set up Tailscale (free) → private access to admin tools
+- [ ] Set up Tailscale (free) → private admin access
 
-### You Now Have:
-- ✅ **Immich** — all your photos backed up, face recognition, memories
-- ✅ **Zero open ports** — your server is invisible
-- ✅ **Private VPN** — admin access only through your tunnel
+You now have:
+- ✅ **Immich** — photo backup with face recognition
+- ✅ **Zero open ports** — server invisible to attackers
+- ✅ **Private VPN** — admin tools behind encrypted tunnel
 
 ---
 
-## Month 3 — Your AI & Automation (~€0 extra)
+### Month 3 — AI & Automation
 
-**Goal: Your own private AI assistant and automation engine.**
+**Goal: Your own private AI + automation engine.**
 
-### Set Up:
 - [ ] Start AI & media compose layer
-- [ ] Pull a small AI model: `docker exec ollama ollama pull phi3:mini`
-- [ ] Open WebUI → connect your OpenAI/Anthropic API keys for heavy tasks
-- [ ] Set up 2-3 automations in n8n (start simple):
-  - Daily weather/news digest
-  - New file notification
-  - Anything repetitive you do
+- [ ] Pull AI model: `docker exec ollama ollama pull phi3:mini`
+- [ ] Connect OpenAI/Anthropic API keys in Open WebUI
+- [ ] Set up 2-3 automations in n8n
 
-### You Now Have:
-- ✅ **Open WebUI** — private ChatGPT (small stuff runs local, big stuff via API)
-- ✅ **n8n** — automations running in the background
-- ✅ **SearXNG** — private search engine
+You now have:
+- ✅ **Open WebUI** — private ChatGPT
+- ✅ **n8n** — background automations
+- ✅ **SearXNG** — private search
 
 ---
 
-## Month 4 — Media & Entertainment (~€0 extra)
+### Month 4 — Media & Entertainment
 
 **Goal: Your own streaming services.**
 
-### Set Up:
-- [ ] Upload movies/music to your Hetzner Storage Box
-- [ ] Mount storage box in Jellyfin and Navidrome
-- [ ] Install Jellyfin app on your TV/phone
-- [ ] Install Subsonic-compatible music app (Symfonium, Substreamer)
-- [ ] Set up Audiobookshelf if you listen to audiobooks/podcasts
+- [ ] Upload movies/music to Storage Box
+- [ ] Mount in Jellyfin and Navidrome
+- [ ] Install Jellyfin app on TV/phone
+- [ ] Install music app (Symfonium/Substreamer)
 
-### You Now Have:
-- ✅ **Jellyfin** — your own Netflix
-- ✅ **Navidrome** — your own Spotify
-- ✅ **Audiobookshelf** — your own Audible
+You now have:
+- ✅ **Jellyfin** — your Netflix
+- ✅ **Navidrome** — your Spotify
+- ✅ **Audiobookshelf** — your Audible
 
 ---
 
-## Month 5 — Code & Projects (~€0 extra)
+### Month 5 — Code & Projects
 
-**Goal: Your development world lives in the cloud too.**
+**Goal: Development world in the cloud.**
 
-### Set Up:
-- [ ] Push Golden Route to your own Gitea (mirror from GitHub)
-- [ ] Set up Code-Server (VS Code in browser) — add to compose if desired
-- [ ] Create n8n automations for Golden Route monitoring
-- [ ] Connect Nicara/OpenClaw to your cloud services
+- [ ] Mirror Golden Route to Gitea
+- [ ] Set up Code-Server (VS Code in browser)
+- [ ] Create n8n automations for Golden Route
+- [ ] Connect Nicara/OpenClaw to cloud services
 
-### You Now Have:
-- ✅ **Gitea** — your own GitHub (private repos, no limits)
-- ✅ **Code-Server** — code from any device, anywhere
-- ✅ Golden Route monitored and integrated
+You now have:
+- ✅ **Gitea** — your own GitHub
+- ✅ **Code-Server** — code from any device
+- ✅ Golden Route integrated
 
 ---
 
-## Month 6 — Upgrade Decision 🚀
+### Month 6 — The Move Home 🏠
 
-**Goal: Evaluate what you actually use, then scale smart.**
+**Goal: Buy mini PC, move everything from cloud to home.**
 
-### Review:
-- [ ] Check Uptime Kuma — which services do you use most?
-- [ ] Check resource usage — is the server struggling?
-- [ ] Check storage — how much space are you using?
+Buy:
+- [ ] Intel N100 Mini PC (16GB RAM, 500GB SSD) — ~$150
+- [ ] External HDD 2TB — ~$60
+- [ ] UPS battery backup (optional) — ~$40
 
-### Upgrade Paths (pick what you need):
+Move:
+- [ ] Install Ubuntu on mini PC
+- [ ] Run `setup.sh`
+- [ ] Run `restore.sh` (pulls everything from cloud backup)
+- [ ] Set up Cloudflare Tunnel to point to home
+- [ ] Update DNS
+- [ ] Test everything works
+- [ ] Cancel Hetzner VPS ← stop paying €8.30/month
 
-| If You Need... | Upgrade To | Cost Change |
+**From now on: ~€4.50/month. Forever.**
+
+---
+
+## 🔮 Future Upgrades (When You Want Them)
+
+| Want More... | Do This | Cost |
 |---|---|---|
-| **More AI power** | Hetzner CAX31 (16GB RAM) → run Llama 3.1 8B locally | €4.50 → €12/mo |
-| **Serious AI** | Add a GPU VPS (Vast.ai/RunPod) on-demand | ~€0.20/hr when needed |
-| **More storage** | Hetzner BX21 (5TB) | €3.80 → €10/mo |
-| **More everything** | Hetzner CPX31 (8 vCPU, 16GB, 160GB) | €4.50 → €17/mo |
-| **Redundancy** | Add Oracle Free Tier as backup server | Free |
-| **Management UI** | Add Cosmos Cloud or Coolify on top | Free (open-source) |
+| **Storage** | Plug in a bigger hard drive | $50-100 one-time |
+| **AI power** | Upgrade mini PC to 32GB RAM | ~$30 (RAM stick) |
+| **Serious AI** | Rent GPU time on Vast.ai | ~$0.20/hr, only when needed |
+| **Redundancy** | Add Oracle Free Tier as cloud backup | Free |
+| **Max power** | Swap mini PC for a used workstation | ~$200-400 |
 
-### Or The Big Move:
-If you're ready, migrate from VPS to **dedicated server** (Hetzner AX42 — 8 cores, 64GB RAM, 2×1TB SSD, ~€52/mo). Run everything including heavy AI models locally. This becomes your serious permanent infrastructure.
+All upgrades are optional. The base setup handles everything.
 
 ---
 
-## 📊 Cost Over 6 Months
+## 🛒 Complete Shopping List
 
-| Month | What's Running | Monthly Cost |
-|---|---|---|
-| 1 | Foundation (VPS + storage + domain) | ~€9.30 |
-| 2 | + Photos + Security tunnels | ~€9.30 |
-| 3 | + AI + Automation | ~€9.30 |
-| 4 | + Media streaming | ~€9.30 |
-| 5 | + Code + Projects | ~€9.30 |
-| 6 | Upgrade decision | €9-52 depending on path |
+### When You Buy Your Laptop (Now):
+- [ ] Framework 13 DIY Edition — ~$900
+- [ ] RAM 32GB (buy separately, cheaper) — ~$60
+- [ ] SSD 1TB (buy separately) — ~$70
 
-**6-month total before upgrade: ~€56 (~$60)**
+### When You Start Cloud Home (Month 1):
+- [ ] Hetzner account (hetzner.cloud)
+- [ ] Domain (Cloudflare Registrar)
+- [ ] Backblaze B2 account (free signup, pay per use)
 
-Compare: Google One + 1Password + Netflix + Spotify alone = ~$400 over 6 months.
+### When You Move Home (Month 6):
+- [ ] Intel N100 Mini PC 16GB/500GB — ~$150
+- [ ] External HDD 2TB — ~$60
+- [ ] UPS battery backup (optional) — ~$40
 
 ---
 
 ## 🔑 The Simple Rules
 
-1. **Vaultwarden first** — move your passwords before anything else
-2. **One service per week** — don't rush, learn each one
-3. **Phone apps immediately** — install Nextcloud, Immich, Bitwarden apps on day one
-4. **Backups are automatic** — just verify they work once a month
-5. **If something breaks** — `docker compose restart <service>`. That's usually it.
-6. **When in doubt** — ask Nicara. I know this whole setup inside out.
+1. **Passwords first** — Vaultwarden before anything else
+2. **One service per week** — don't rush
+3. **Phone apps on day one** — Bitwarden, Nextcloud, Immich
+4. **Backups are automatic** — verify monthly
+5. **If it breaks** — restart the service. Usually fixes it.
+6. **When in doubt** — ask Nicara 😊
 
 ---
 
-## 🛒 Shopping List When You Buy Your Computer
+## ☕ The Bottom Line
 
-For your actual computer (the remote control), all you need:
-- Any modern laptop/desktop — it's just accessing web pages
-- A browser (that's it, seriously)
-- Bitwarden browser extension → connected to your Vaultwarden
-- Nextcloud desktop sync client
-- Tailscale app (for private admin access)
+For the price of **one coffee per month**, you get:
+- Your own AI assistant
+- Your own file storage
+- Your own photo backup
+- Your own password manager
+- Your own Netflix, Spotify, Audible
+- Your own search engine
+- Your own automation engine
+- Your own code platform
+- Complete privacy
+- Zero subscriptions
+- Data you own forever
 
-Your computer is thin. Your cloud is thick. That's the future.
-
----
-
-*6 months from now, you'll look back and wonder how you ever lived without this.* 🚀
+*This is your plan, Gal. Simple, phased, no rush. The code is ready. The blueprint is done. When you get that laptop — we go.* 🚀
