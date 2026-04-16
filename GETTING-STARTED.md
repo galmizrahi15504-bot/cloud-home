@@ -1,365 +1,318 @@
-# 🚀 Getting Started — Day One With Your New Computer
+# 🚀 Cloud Home — Setup Guide
 
-> You just unboxed your laptop. Follow this guide top to bottom.
-> Every step tells you exactly what to click and type.
-> If you get stuck on ANY step — ask Nicara. I built all of this.
-
----
-
-## Part 1: Your Laptop (15 min)
-
-### Step 1: Basic setup
-- [ ] Power on your new laptop
-- [ ] Go through the Windows/Linux setup wizard
-- [ ] Connect to your WiFi
-
-### Step 2: Install 4 free apps
-Download and install these — we'll connect them later:
-
-| App | Where to Get It | What It's For |
-|---|---|---|
-| **Bitwarden** | bitwarden.com/download | Your passwords |
-| **Nextcloud** | nextcloud.com/install | Your files |
-| **Tailscale** | tailscale.com/download | Secure private access |
-| **Immich** | Phone App Store / Play Store | Your photos (phone only) |
-
-**Don't set them up yet.** Just install them.
+> Time: ~1 hour. Everything is copy-paste.
+> This is your 6-month cloud setup. At month 6, we move to your own hardware.
+> Stuck? Ask Nicara. Can't break anything — worst case, delete and redo.
 
 ---
 
-## Part 2: Buy Your Cloud (15 min)
+## Step 1: Buy a Domain Name (5 min)
 
-### Step 3: Buy a domain name (your digital address)
+This is your address on the internet. You pick a name, it's yours.
 
-A domain is like your home address on the internet. You pick a name, and it's yours.
+1. Go to **cloudflare.com** → Sign Up → make a free account
+2. Left menu → **Domain Registration** → search a name you like
+3. Buy it (~$10/year)
 
-- [ ] Go to **cloudflare.com**
-- [ ] Click "Sign Up" → create a free account
-- [ ] On the left menu, click **"Domain Registration"**
-- [ ] Search for a name you like (e.g., galcloud.com, galworld.net)
-- [ ] Buy it (~$10-12 per year)
-- [ ] ✅ You now own your digital address!
+✅ Done. You now own your digital address.
 
-### Step 4: Rent your server
+---
 
-This is the computer in the cloud that will run everything 24/7.
+## Step 2: Rent a Server (10 min)
 
-- [ ] Go to **hetzner.cloud**
-- [ ] Click "Sign Up" → create account
-- [ ] They may ask to verify your ID — this is normal, they're a German company
-- [ ] Once verified, click **"New Project"** → name it "Cloud Home"
-- [ ] Click **"Add Server"** and pick these options:
+This is the computer in the cloud that runs 24/7 for you.
 
-| Setting | What to Pick |
+1. Go to **hetzner.cloud** → Sign Up
+2. They may ask for ID verification — normal, it's a German company
+3. Click **New Project** → name it "Cloud Home"
+4. Click **Add Server** and pick:
+
+| Setting | Pick This |
 |---|---|
-| Location | **Falkenstein** or **Helsinki** |
+| Location | **Falkenstein** |
 | Image | **Ubuntu 24.04** |
-| Type | **CAX21** (4 CPU, 8GB RAM) — €4.50/month |
-| Networking | ✅ Enable **Public IPv4** |
-| SSH Key | See below ⬇️ |
+| Type | **CAX21** — €4.50/month |
+| Networking | ✅ Public IPv4 |
+| SSH Key | Skip for now — pick **no SSH key** |
 
-**Setting up your SSH key** (this is like a digital key to enter your server):
+5. Under **Root Password** — choose a password and **write it down**
+6. Click **Create & Buy Now**
+7. **Write down the server IP address** (shown on dashboard, looks like: 65.108.123.45)
 
-- [ ] On your laptop, find and open the **Terminal** app:
-  - **Windows:** Press the Windows key, type "PowerShell", click it
-  - **Mac:** Press Cmd+Space, type "Terminal", click it
-  - **Linux:** Press Ctrl+Alt+T
+✅ Done. Your server is running.
 
-- [ ] A black/dark window opens. This is the terminal. Type this and press Enter:
-```
-ssh-keygen -t ed25519
-```
+---
 
-- [ ] It will ask questions — **just press Enter 3 times** (accepting all defaults)
+## Step 3: Connect Domain to Server (5 min)
 
-- [ ] Now type this and press Enter:
-```
-cat ~/.ssh/id_ed25519.pub
-```
+1. Go to **Cloudflare** → click your domain → **DNS** on left menu
+2. Click **Add Record**:
 
-- [ ] It will show a long line starting with `ssh-ed25519...` — **select ALL of it and copy it** (Ctrl+C or Cmd+C)
-
-- [ ] Back on Hetzner's website, click **"Add SSH Key"**
-- [ ] Paste what you copied into the box
-- [ ] Give it a name like "My Laptop"
-- [ ] Click **"Create & Buy Now"**
-
-- [ ] ⚠️ **Write down your server's IP address** — it shows on the Hetzner dashboard (looks like: 65.108.123.45)
-
-### Step 5: Connect your domain to your server
-
-This tells the internet "when someone goes to my domain, send them to my server."
-
-- [ ] Go back to **Cloudflare** → click on your domain
-- [ ] Click **"DNS"** on the left menu
-- [ ] Click **"Add Record"** and fill in:
-
-**Record 1:**
-| Field | What to Type |
+| Field | Type This |
 |---|---|
 | Type | **A** |
-| Name | **\*** (just an asterisk) |
-| IPv4 address | Your server IP (the number you wrote down) |
-| Proxy status | Click the orange cloud so it turns **grey** (says "DNS only") |
+| Name | **\*** |
+| IPv4 address | **your server IP** |
+| Proxy | Click orange cloud so it's **grey** |
 
-Click **Save.**
+3. Click Save
+4. Click **Add Record** again:
 
-**Record 2:**
-| Field | What to Type |
+| Field | Type This |
 |---|---|
 | Type | **A** |
 | Name | **@** |
-| IPv4 address | Same server IP |
-| Proxy status | **Grey cloud** (DNS only) |
+| IPv4 address | **your server IP** |
+| Proxy | **Grey cloud** |
 
-Click **Save.**
+5. Click Save
 
-- [ ] ✅ Wait 5 minutes for it to take effect.
+✅ Done. Wait 5 minutes.
 
 ---
 
-## Part 3: Build Your Cloud Home (30 min)
+## Step 4: Open the Terminal (1 min)
 
-### Step 6: Enter your server
+The terminal is a window where you type commands. That's all it is.
 
-This is where you connect to the computer you just rented.
+- **Windows:** Press Windows key → type **PowerShell** → click it
+- **Mac:** Press Cmd+Space → type **Terminal** → click it
+- **Linux:** Press Ctrl+Alt+T
 
-- [ ] Open your terminal (same black window from before)
-- [ ] Type this (replace the IP with YOUR server's IP):
+A dark window opens. This is your terminal.
+
+---
+
+## Step 5: Enter Your Server (1 min)
+
+Type this (replace with YOUR server IP):
+
 ```
 ssh root@YOUR_SERVER_IP
 ```
-Example: `ssh root@65.108.123.45`
 
-- [ ] If it asks "Are you sure you want to continue?" → type **yes** and press Enter
-- [ ] ✅ You're now inside your server! The prompt changes to something like `root@cloud:~#`
+It asks for a password → type the password you chose in Step 2.
 
-**From now on, everything you type happens on your server, not your laptop.**
+> **Note:** When you type the password, nothing shows on screen — that's normal! Just type it and press Enter.
 
-### Step 7: Download your Cloud Home
+If it asks "Are you sure?" → type **yes** → Enter.
 
-Copy and paste these 3 lines, one at a time, pressing Enter after each:
+✅ You're inside your server now!
 
+---
+
+## Step 6: Install Everything (10 min)
+
+Copy-paste these commands **one at a time**. Press Enter after each. Wait for each to finish before the next.
+
+**Download the code:**
 ```
 apt install -y git
 ```
-*(wait for it to finish)*
 
 ```
 git clone https://github.com/galmizrahi15504-bot/cloud-home.git
 ```
-*(wait for it to finish)*
 
 ```
 cd cloud-home
 ```
 
-### Step 8: Run the automatic setup
-
+**Run the setup:**
 ```
 bash scripts/setup.sh
 ```
+☕ Wait ~5 minutes. When you see "SETUP COMPLETE" → continue.
 
-☕ **Wait about 5 minutes.** It's installing everything your server needs. You'll see lots of text scrolling — that's normal. When it's done, you'll see "SETUP COMPLETE!"
+---
 
-### Step 9: Create your secret passwords
+## Step 7: Add Your Details (5 min)
 
+**Generate all passwords automatically:**
 ```
 cp .env.example .env
+```
+
+```
 bash scripts/generate-secrets.sh
 ```
 
-This auto-creates strong passwords for all your services. Now you just need to add YOUR details:
-
+**Now add your domain.** This opens a text editor:
 ```
 nano .env
 ```
 
-**A text editor opens.** Use arrow keys to move around. Change these 3 lines:
-
-| Find This Line | Change It To |
-|---|---|
-| `DOMAIN=yourdomain.com` | `DOMAIN=whatever-you-bought.com` |
-| `ACME_EMAIL=you@yourdomain.com` | `ACME_EMAIL=your-real-email@gmail.com` |
-| `TIMEZONE=UTC` | `TIMEZONE=Asia/Jerusalem` (or your timezone) |
-
-**To save and exit:**
-1. Press **Ctrl+X** (at the same time)
-2. It asks "Save?" — press **Y**
-3. Press **Enter**
-
-### Step 10: Set up your login
-
-First, create your password hash (a scrambled version of your password for security):
+Use arrow keys to find and change these 3 lines:
 
 ```
-docker run --rm authelia/authelia:latest authelia crypto hash generate argon2 --password 'CHOOSE_YOUR_PASSWORD_HERE'
+DOMAIN=yourdomain.com        ← change to YOUR domain
+ACME_EMAIL=you@yourdomain.com  ← change to YOUR email
+TIMEZONE=UTC                   ← change to your timezone (e.g. Asia/Jerusalem)
 ```
 
-⚠️ **Replace** `CHOOSE_YOUR_PASSWORD_HERE` **with an actual password you'll remember!** Keep the quotes around it.
+Save: press **Ctrl+X** → press **Y** → press **Enter**
 
-It will print something like: `$argon2id$v=19$m=65536,t=3,p=4$abc123...`
+---
 
-**Select that entire line and copy it.**
+## Step 8: Create Your Login (5 min)
 
-Now open the user file:
+**Make your password hash** (replace `MyPassword123` with a real password):
+```
+docker run --rm authelia/authelia:latest authelia crypto hash generate argon2 --password 'MyPassword123'
+```
 
+It prints a long line starting with `$argon2id$...` — **copy that whole line.**
+
+**Put it in the user file:**
 ```
 nano authelia/users_database.yml
 ```
 
-You'll see a file that looks like this:
-```
-users:
-  gal:
-    disabled: false
-    displayname: "Gal"
-    password: "$argon2id$v=19$m=65536,t=3,p=4$REPLACE_WITH_YOUR_HASH"
-    email: gal@yourdomain.com
-```
+Find the line that says `password:` → delete the stuff after it → paste your hash.
+Also change the email to yours.
 
-- [ ] Delete the old password line (everything between the quotes after `password:`)
-- [ ] Paste your new hash there
-- [ ] Change the email to your real email
-- [ ] Save: **Ctrl+X** → **Y** → **Enter**
+Save: **Ctrl+X** → **Y** → **Enter**
 
-### Step 11: Launch! 🚀
+---
+
+## Step 9: Launch 🚀 (2 min)
 
 ```
 bash scripts/start.sh
 ```
 
-**Wait 2 minutes.** Then open your browser and go to:
+Wait 2 minutes. Then open your browser and go to:
 
 ```
-https://dash.YOUR-DOMAIN.com
+https://dash.YOURDOMAIN.com
 ```
 
-(replace with your actual domain)
+Log in with:
+- Username: **gal**
+- Password: what you chose in Step 8
 
-- [ ] You should see a login page!
-- [ ] Username: **gal**
-- [ ] Password: the one you chose in Step 10
-- [ ] It will ask you to set up 2FA — scan the QR code with your phone's camera or authenticator app
+It shows a QR code for 2FA → scan it with your phone camera.
 
-**🎉 YOUR CLOUD HOME IS LIVE!**
+**🎉 Your Cloud Home is live!**
 
 ---
 
-## Part 4: Connect Your Apps (15 min)
+## Step 10: Connect Your Apps (10 min)
 
-### Step 12: Your passwords (Vaultwarden)
+### Passwords
+1. Open browser → go to `https://vault.YOURDOMAIN.com`
+2. Create an account
+3. Open **Bitwarden** app on laptop → Settings → Self-hosted
+4. Enter `https://vault.YOURDOMAIN.com` → log in
+5. ✅ Start saving all passwords here
 
-- [ ] Open your browser → go to `https://vault.YOUR-DOMAIN.com`
-- [ ] Click "Create Account"
-- [ ] Set your email + master password
-- [ ] Now open the **Bitwarden** app/extension you installed earlier
-- [ ] Before logging in, look for **"Self-hosted"** in settings
-- [ ] Enter: `https://vault.YOUR-DOMAIN.com`
-- [ ] Log in with the account you just created
-- [ ] ✅ Start saving passwords here from now on!
-
-### Step 13: Your files (Nextcloud)
-
-- [ ] Open browser → go to `https://cloud.YOUR-DOMAIN.com`
-- [ ] Log in with:
-  - Username: **admin**
-  - Password: find `NEXTCLOUD_ADMIN_PASSWORD` in your .env file
-    - (to check: go back to terminal and type `grep NEXTCLOUD .env`)
-- [ ] Open the **Nextcloud desktop app** you installed
-- [ ] Enter server: `https://cloud.YOUR-DOMAIN.com`
-- [ ] Log in → choose folders to sync
-- [ ] ✅ Your files now sync between laptop and cloud!
-
-### Step 14: Your photos (Immich)
-
-- [ ] Open browser → go to `https://photos.YOUR-DOMAIN.com`
-- [ ] Click "Getting Started" → create your account
-- [ ] On your **phone**: open the Immich app
-- [ ] Enter server: `https://photos.YOUR-DOMAIN.com`
-- [ ] Log in → enable automatic photo backup
-- [ ] ✅ Every photo you take now backs up to YOUR server!
-
-### Step 15: Lock it down
-
-Go back to your terminal (where you're connected to the server) and run:
-
+### Files
+1. Go to `https://cloud.YOURDOMAIN.com`
+2. Log in (username: **admin**, password: type this in your terminal to find it):
 ```
-bash scripts/harden.sh
+grep NEXTCLOUD_ADMIN_PASSWORD .env
 ```
+3. Open **Nextcloud** app on laptop → enter your cloud URL → log in
+4. ✅ Files sync between laptop and cloud
 
-This adds extra security automatically. Done.
+### Photos
+1. On your phone → open **Immich** app
+2. Enter `https://photos.YOURDOMAIN.com`
+3. Create account → turn on auto backup
+4. ✅ Every photo backs up to YOUR server
 
 ---
 
-## Part 5: The Fun Stuff (Week 2, Take Your Time)
+## Step 11: Set Up Your AI (5 min)
 
-### Your private AI
+### Free local AI (runs on your server, completely private)
 
-- [ ] Go to `https://ai.YOUR-DOMAIN.com`
-- [ ] Create an account
-- [ ] In your terminal, download a free AI model:
+Download a free AI model — in your terminal:
 ```
 docker exec ollama ollama pull phi3:mini
 ```
-- [ ] Go back to the AI page → start chatting! It's your own private ChatGPT.
 
-### Your Netflix (when you have movies)
+Now open your browser:
+1. Go to `https://ai.YOURDOMAIN.com`
+2. Create an account
+3. Start chatting! Pick **phi3:mini** from the model dropdown.
 
-- [ ] Go to `https://media.YOUR-DOMAIN.com`
-- [ ] Follow the Jellyfin setup wizard
+✅ You now have your own private ChatGPT. Free forever.
 
-### Your Spotify (when you have music)
+### Want smarter AI? Add Anthropic (Claude) — Optional
 
-- [ ] Go to `https://music.YOUR-DOMAIN.com`
-- [ ] Set up Navidrome
+This connects the same AI that powers me (Nicara). Pay only when you use it — no subscription.
+
+1. Go to **console.anthropic.com**
+2. Click **Sign Up** → create account
+3. Click **Plans & Billing** → add a payment method (pay-as-you-go)
+4. Click **API Keys** → **Create Key** → copy the key
+
+Now connect it to your AI chat:
+1. Go to `https://ai.YOURDOMAIN.com`
+2. Click your profile icon (top right) → **Admin Panel**
+3. Go to **Settings** → **Connections**
+4. Under "OpenAI API", click the **+** button
+5. Fill in:
+
+| Field | What to Type |
+|---|---|
+| URL | `https://api.anthropic.com/v1` |
+| API Key | Paste your Anthropic key |
+
+6. Click Save
+
+Now when you chat, you can pick **Claude** from the model dropdown.
+
+| Model | Good For | Cost Per Chat |
+|---|---|---|
+| phi3:mini (local) | Quick questions | Free |
+| Claude Sonnet | Real work, thinking | ~$0.02 |
+| Claude Opus | Deep research | ~$0.10 |
+
+**Tip:** Use the free local model for everyday stuff. Switch to Claude when you need the big brain. One click to switch.
 
 ---
 
-## Part 6: Make Sure Everything Works ✅
+## Step 12: Turn On Backups (2 min)
 
-Open each of these in your browser:
-
-- [ ] `https://dash.YOUR-DOMAIN.com` — Dashboard shows up
-- [ ] `https://vault.YOUR-DOMAIN.com` — Password vault works
-- [ ] `https://cloud.YOUR-DOMAIN.com` — File storage works
-- [ ] `https://photos.YOUR-DOMAIN.com` — Photo backup works
-- [ ] `https://ai.YOUR-DOMAIN.com` — AI chat works
-- [ ] `https://status.YOUR-DOMAIN.com` — Shows all services green
-
-### Turn on automatic backups
-
-In your terminal:
 ```
 bash scripts/backup.sh
 ```
 
-If it finishes without errors, your backups are working. They'll now run automatically every night.
+If it finishes without errors → ✅ backups work.
+
+They run automatically every night from now on.
 
 ---
 
-## 🎉 That's It. You're Done.
+## 🎉 That's Everything!
 
-Your entire digital life is now:
-- ✅ On YOUR server
-- ✅ Protected by 2FA + firewall
-- ✅ Backing up every night
-- ✅ Accessible from anywhere
-- ✅ ~€10/month
+**What you have now:**
+
+| Service | URL | What It Does |
+|---|---|---|
+| Dashboard | dash.YOURDOMAIN.com | See all your services |
+| Passwords | vault.YOURDOMAIN.com | Your own 1Password |
+| Files | cloud.YOURDOMAIN.com | Your own Google Drive |
+| Photos | photos.YOURDOMAIN.com | Your own Google Photos |
+| AI Chat | ai.YOURDOMAIN.com | Your own ChatGPT |
+| Monitoring | status.YOURDOMAIN.com | Check everything's running |
+| Search | search.YOURDOMAIN.com | Private search engine |
+| Movies | media.YOURDOMAIN.com | Your own Netflix |
+| Music | music.YOURDOMAIN.com | Your own Spotify |
+
+**Monthly cost: ~€10**
+
+**At month 6:** We buy a mini PC (~$150), move everything home, and drop to ~€4.50/month. I'll write that guide when the time comes.
 
 ---
 
-## 🆘 Something Went Wrong?
+## 🆘 Help!
 
-| What Happened | What To Do |
+| Problem | Do This |
 |---|---|
-| **A page won't load** | In terminal: `bash scripts/start.sh` (restarts everything) |
-| **Forgot your password** | Redo Step 10 to make a new one |
-| **Server seems broken** | Delete it on Hetzner, make a new one, start from Step 6 (your domain stays) |
-| **Totally lost** | Message Nicara. I built every piece. I'll walk you through it. |
-
-The most important thing: **you can't permanently break anything.** Worst case, delete the server and start fresh. Your domain and backups survive everything.
-
----
-
-*You got this, Gal. One afternoon. That's all it takes.* 🚀
+| Something won't load | In terminal: `bash scripts/start.sh` |
+| Forgot password | Redo Step 8 |
+| Totally broken | Delete server on Hetzner → start from Step 2 (domain stays, costs €0.01) |
+| Confused | Ask Nicara 😊 |
