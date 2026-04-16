@@ -1,0 +1,93 @@
+# ============================================================
+# 🛡️ CLOUD HOME — Security Hardening Layer
+# ============================================================
+# Adds: Cloudflare Tunnel, CrowdSec, Tailscale
+# This layer makes your cloud nearly invisible to attackers.
+# ============================================================
+
+volumes:
+  crowdsec_config:
+  crowdsec_data:
+  tailscale_data:
+
+services:
+  # ----------------------------------------------------------
+  # 🔒 Cloudflare Tunnel — Zero Open Ports
+  # ----------------------------------------------------------
+  # Routes ALL traffic through Cloudflare's network.
+  # Your server has NO public ports — attackers can't even scan it.
+  # Free tier includes DDoS protection and CDN.
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - cloud-net
+
+  # ----------------------------------------------------------
+  # 🛡️ CrowdSec — Collaborative Intrusion Detection
+  # ----------------------------------------------------------
+  # Like Fail2ban but smarter — shared threat intelligence
+  # from thousands of servers worldwide. Blocks known attackers
+  # before they even try.
+  crowdsec:
+    image: crowdsecurity/crowdsec:latest
+    container_name: crowdsec
+    restart: unless-stopped
+    volumes:
+      - crowdsec_config:/etc/crowdsec
+      - crowdsec_data:/var/lib/crowdsec/data
+      - /var/log:/var/log:ro
+    environment:
+      - COLLECTIONS=crowdsecurity/linux crowdsecurity/caddy crowdsecurity/ssh
+      - TZ=${TIMEZONE:-UTC}
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    networks:
+      - cloud-net
+
+  # CrowdSec Bouncer — enforces CrowdSec decisions at Caddy level
+  crowdsec-bouncer:
+    image: fbonalair/traefik-crowdsec-bouncer:latest
+    container_name: crowdsec-bouncer
+    restart: unless-stopped
+    depends_on:
+      - crowdsec
+    environment:
+      - CROWDSEC_BOUNCER_API_KEY=${CROWDSEC_BOUNCER_KEY}
+      - CROWDSEC_AGENT_HOST=crowdsec:8080
+    networks:
+      - cloud-net
+
+  # ----------------------------------------------------------
+  # 🔐 Tailscale — Private VPN Mesh
+  # ----------------------------------------------------------
+  # Creates a private encrypted tunnel between your devices.
+  # Admin services (Portainer, Uptime Kuma, SSH) are ONLY
+  # accessible through this tunnel — invisible to the internet.
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: tailscale
+    restart: unless-stopped
+    hostname: cloud-home
+    volumes:
+      - tailscale_data:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - TS_AUTHKEY=${TAILSCALE_AUTH_KEY}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_EXTRA_ARGS=--advertise-exit-node
+    networks:
+      - cloud-net
+
+networks:
+  cloud-net:
+    external: true
