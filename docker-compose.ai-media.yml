@@ -1,0 +1,247 @@
+# ============================================================
+# 🤖🎬 CLOUD HOME — AI & Media Services
+# ============================================================
+# Your AI assistants and entertainment layer
+# Requires: core infrastructure running first
+# ============================================================
+
+volumes:
+  ollama_models:
+  openwebui_data:
+  n8n_data:
+  searxng_data:
+  jellyfin_config:
+  jellyfin_cache:
+  navidrome_data:
+  audiobookshelf_config:
+  audiobookshelf_metadata:
+  freshrss_data:
+  freshrss_extensions:
+  homepage_config:
+
+services:
+  # ==========================================================
+  # 🤖 AI SERVICES
+  # ==========================================================
+
+  # ----------------------------------------------------------
+  # 🧠 Ollama — Local LLM Runtime
+  # ----------------------------------------------------------
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    volumes:
+      - ollama_models:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:11434/api/tags || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+        reservations:
+          memory: 2G
+        # To enable NVIDIA GPU, add under reservations:
+        #   devices:
+        #     - driver: nvidia
+        #       count: all
+        #       capabilities: [gpu]
+    networks:
+      - cloud-net
+
+  # ----------------------------------------------------------
+  # 💬 Open WebUI — AI Chat Interface
+  # ----------------------------------------------------------
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: unless-stopped
+    depends_on:
+      ollama:
+        condition: service_healthy
+    volumes:
+      - openwebui_data:/app/backend/data
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - WEBUI_SECRET_KEY=${OPENWEBUI_SECRET}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_API_BASE_URL=${OPENAI_API_BASE:-}
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    networks:
+      - cloud-net
+
+  # ----------------------------------------------------------
+  # ⚡ n8n — Automation Engine
+  # ----------------------------------------------------------
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    # Note: needs postgres (from data.yml). start.sh handles launch order.
+    volumes:
+      - n8n_data:/home/node/.n8n
+    environment:
+      - N8N_HOST=auto.${DOMAIN}
+      - N8N_PROTOCOL=https
+      - WEBHOOK_URL=https://auto.${DOMAIN}/
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=${POSTGRES_USER:-cloudadmin}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    networks:
+      - cloud-net
+
+  # ----------------------------------------------------------
+  # 🔍 SearXNG — Private Search Engine
+  # ----------------------------------------------------------
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng
+    restart: unless-stopped
+    volumes:
+      - searxng_data:/etc/searxng
+    environment:
+      - SEARXNG_BASE_URL=https://search.${DOMAIN}/
+      - SEARXNG_SECRET=${SEARXNG_SECRET}
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    networks:
+      - cloud-net
+
+  # ==========================================================
+  # 🎬 MEDIA SERVICES
+  # ==========================================================
+
+  # ----------------------------------------------------------
+  # 🎥 Jellyfin — Media Server
+  # ----------------------------------------------------------
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    restart: unless-stopped
+    volumes:
+      - jellyfin_config:/config
+      - jellyfin_cache:/cache
+      - ${MEDIA_PATH:-./media}/movies:/data/movies:ro
+      - ${MEDIA_PATH:-./media}/shows:/data/shows:ro
+      - ${MEDIA_PATH:-./media}/music:/data/music:ro
+    environment:
+      - JELLYFIN_PublishedServerUrl=https://media.${DOMAIN}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8096/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    # Uncomment for Intel QuickSync hardware transcoding:
+    # devices:
+    #   - /dev/dri:/dev/dri
+    networks:
+      - cloud-net
+
+  # ----------------------------------------------------------
+  # 🎵 Navidrome — Music Server
+  # ----------------------------------------------------------
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    restart: unless-stopped
+    volumes:
+      - navidrome_data:/data
+      - ${MEDIA_PATH:-./media}/music:/music:ro
+    environment:
+      - ND_SCANSCHEDULE=1h
+      - ND_LOGLEVEL=info
+      - ND_BASEURL=https://music.${DOMAIN}
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    networks:
+      - cloud-net
+
+  # ----------------------------------------------------------
+  # 📚 Audiobookshelf — Audiobooks & Podcasts
+  # ----------------------------------------------------------
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    container_name: audiobookshelf
+    restart: unless-stopped
+    volumes:
+      - ${MEDIA_PATH:-./media}/audiobooks:/audiobooks
+      - ${MEDIA_PATH:-./media}/podcasts:/podcasts
+      - audiobookshelf_config:/config
+      - audiobookshelf_metadata:/metadata
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    networks:
+      - cloud-net
+
+  # ----------------------------------------------------------
+  # 📰 FreshRSS — RSS Feed Reader
+  # ----------------------------------------------------------
+  freshrss:
+    image: freshrss/freshrss:latest
+    container_name: freshrss
+    restart: unless-stopped
+    volumes:
+      - freshrss_data:/var/www/FreshRSS/data
+      - freshrss_extensions:/var/www/FreshRSS/extensions
+    environment:
+      - TZ=${TIMEZONE:-UTC}
+      - CRON_MIN=2,32
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    networks:
+      - cloud-net
+
+  # ----------------------------------------------------------
+  # 🏠 Homepage — Service Dashboard
+  # ----------------------------------------------------------
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    restart: unless-stopped
+    volumes:
+      - homepage_config:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    networks:
+      - cloud-net
+
+networks:
+  cloud-net:
+    external: true

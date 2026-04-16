@@ -1,0 +1,18 @@
+# Secrets - NEVER commit these
+.env
+authelia/db.sqlite3
+authelia/notification.txt
+
+# Backup temp files
+backups/temp/
+backups/*.log
+
+# Media (too large for git)
+media/movies/*
+media/shows/*
+media/music/*
+media/audiobooks/*
+media/podcasts/*
+
+# Docker volumes (managed by Docker)
+volumes/

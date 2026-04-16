@@ -1,0 +1,191 @@
+# ============================================================
+# 🔀 Caddyfile — Reverse Proxy Configuration
+# ============================================================
+# Automatic HTTPS via Let's Encrypt
+# {$DOMAIN} is replaced from environment variable
+# ============================================================
+
+# Global settings
+{
+	admin 0.0.0.0:2019
+	email {$ACME_EMAIL:admin@{$DOMAIN}}
+}
+
+# -- Authelia forward-auth snippet --
+(authelia) {
+	forward_auth authelia:9091 {
+		uri /api/authz/forward-auth
+		copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+	}
+}
+
+# -- Security headers --
+(security) {
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options SAMEORIGIN
+		Referrer-Policy strict-origin-when-cross-origin
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-XSS-Protection "1; mode=block"
+		-Server
+	}
+}
+
+# -- Common proxy settings --
+(proxy-defaults) {
+	header_up X-Real-IP {remote_host}
+	header_up X-Forwarded-For {remote_host}
+	header_up X-Forwarded-Proto {scheme}
+}
+
+# ==========================================================
+# AUTH
+# ==========================================================
+auth.{$DOMAIN} {
+	import security
+	reverse_proxy authelia:9091 {
+		import proxy-defaults
+	}
+}
+
+# ==========================================================
+# DATA SERVICES (own auth — bypasses Authelia)
+# ==========================================================
+cloud.{$DOMAIN} {
+	import security
+	# Increase upload limit for Nextcloud
+	request_body {
+		max_size 10GB
+	}
+	reverse_proxy nextcloud:80 {
+		import proxy-defaults
+	}
+}
+
+photos.{$DOMAIN} {
+	import security
+	# Large photo uploads
+	request_body {
+		max_size 5GB
+	}
+	reverse_proxy immich-server:2283 {
+		import proxy-defaults
+	}
+}
+
+vault.{$DOMAIN} {
+	import security
+	reverse_proxy vaultwarden:80 {
+		import proxy-defaults
+	}
+}
+
+git.{$DOMAIN} {
+	import security
+	reverse_proxy gitea:3000 {
+		import proxy-defaults
+	}
+}
+
+# ==========================================================
+# AI SERVICES (behind Authelia 2FA)
+# ==========================================================
+ai.{$DOMAIN} {
+	import security
+	import authelia
+	reverse_proxy open-webui:8080 {
+		import proxy-defaults
+	}
+}
+
+auto.{$DOMAIN} {
+	import security
+	import authelia
+	reverse_proxy n8n:5678 {
+		import proxy-defaults
+		# Websocket support for n8n
+		header_up Connection {>Connection}
+		header_up Upgrade {>Upgrade}
+	}
+}
+
+search.{$DOMAIN} {
+	import security
+	import authelia
+	reverse_proxy searxng:8080 {
+		import proxy-defaults
+	}
+}
+
+# ==========================================================
+# MEDIA (own auth — apps need direct access)
+# ==========================================================
+media.{$DOMAIN} {
+	import security
+	reverse_proxy jellyfin:8096 {
+		import proxy-defaults
+		# Websocket for Jellyfin
+		header_up Connection {>Connection}
+		header_up Upgrade {>Upgrade}
+	}
+}
+
+music.{$DOMAIN} {
+	import security
+	reverse_proxy navidrome:4533 {
+		import proxy-defaults
+	}
+}
+
+books.{$DOMAIN} {
+	import security
+	reverse_proxy audiobookshelf:13378 {
+		import proxy-defaults
+	}
+}
+
+rss.{$DOMAIN} {
+	import security
+	import authelia
+	reverse_proxy freshrss:80 {
+		import proxy-defaults
+	}
+}
+
+# ==========================================================
+# MANAGEMENT (behind Authelia 2FA)
+# ==========================================================
+manage.{$DOMAIN} {
+	import security
+	import authelia
+	reverse_proxy portainer:9000 {
+		import proxy-defaults
+	}
+}
+
+status.{$DOMAIN} {
+	import security
+	import authelia
+	reverse_proxy uptime-kuma:3001 {
+		import proxy-defaults
+		# Websocket for live monitoring
+		header_up Connection {>Connection}
+		header_up Upgrade {>Upgrade}
+	}
+}
+
+dash.{$DOMAIN} {
+	import security
+	import authelia
+	reverse_proxy homepage:3000 {
+		import proxy-defaults
+	}
+}
+
+dns.{$DOMAIN} {
+	import security
+	import authelia
+	reverse_proxy adguard:3000 {
+		import proxy-defaults
+	}
+}
