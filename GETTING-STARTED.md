@@ -222,6 +222,8 @@ Your files and photos now sync to your own server. ✅
 - Click **Sign up** → create your account (the first account automatically becomes admin)
 - Pick **Claude** from the model dropdown → start chatting
 
+> **If Claude doesn't appear in the dropdown:** Go to Admin Panel (top right menu) → Settings → Connections → Anthropic → make sure your API key is there and enabled → Save.
+
 You pay Anthropic per message, not per month. A normal back-and-forth conversation costs about $0.02. ✅
 
 ---
@@ -248,10 +250,12 @@ In Coolify → **Settings** → **Backup** → **Add S3 Storage**:
 | Field | Value |
 |---|---|
 | Name | Backblaze |
-| Endpoint | `https://s3.us-west-000.backblazeb2.com` |
+| Endpoint | Copy from Backblaze → your bucket → **Endpoint** (looks like `https://s3.us-west-004.backblazeb2.com`) |
 | Bucket | cloud-home-backup |
 | Access Key | your Backblaze Key ID |
 | Secret Key | your Backblaze App Key |
+
+> **Where to find your endpoint:** Log into Backblaze → **Buckets** → click your bucket → look for **Endpoint**. Copy exactly what it shows — the number varies per account.
 
 Click **Save** → then **Backup Now** to test it.
 
