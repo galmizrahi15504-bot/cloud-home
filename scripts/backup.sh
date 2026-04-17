@@ -1,109 +1,62 @@
 #!/bin/bash
 # ============================================================
-# 💾 CLOUD HOME — Automated Backup Script
-# ============================================================
-# Backs up all data to Backblaze B2 using Restic
-# Schedule with cron: 0 3 * * * /root/cloud/scripts/backup.sh
+# 💾 CLOUD HOME — Backup to Backblaze B2
+# Runs automatically every night via cron.
+# Manual run: bash scripts/backup.sh
 # ============================================================
 
 set -euo pipefail
 
-# Load environment
-CLOUD_DIR="${HOME}/cloud"
+CLOUD_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 source "$CLOUD_DIR/.env"
 
-# Restic config
 export RESTIC_REPOSITORY="s3:https://s3.us-west-000.backblazeb2.com/${B2_BUCKET}"
 export AWS_ACCESS_KEY_ID="${B2_ACCOUNT_ID}"
 export AWS_SECRET_ACCESS_KEY="${B2_ACCOUNT_KEY}"
 export RESTIC_PASSWORD="${RESTIC_PASSWORD}"
 
-BACKUP_DIR="$CLOUD_DIR/backups/temp"
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-LOG_FILE="$CLOUD_DIR/backups/backup_${TIMESTAMP}.log"
+LOG="$CLOUD_DIR/backups/last-backup.log"
+mkdir -p "$CLOUD_DIR/backups"
 
-log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"; }
+log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG"; }
 
-mkdir -p "$BACKUP_DIR" "$CLOUD_DIR/backups"
+> "$LOG"  # clear old log
+log "🚀 Starting backup..."
 
-log "🚀 Starting Cloud Home backup..."
+# Initialize repo if first time
+restic snapshots &>/dev/null || restic init
+log "✅ Repository ready"
 
-# ----------------------------------------------------------
-# Step 1: Dump PostgreSQL databases
-# ----------------------------------------------------------
-log "📦 Dumping PostgreSQL databases..."
-docker exec postgres pg_dumpall -U "${POSTGRES_USER:-cloudadmin}" > "$BACKUP_DIR/postgres_all.sql" 2>> "$LOG_FILE"
-log "✅ PostgreSQL dump complete"
+# Dump Nextcloud database
+log "📦 Dumping database..."
+mkdir -p "$CLOUD_DIR/backups/temp"
+docker exec postgres pg_dump -U "${POSTGRES_USER:-cloudadmin}" nextcloud \
+  > "$CLOUD_DIR/backups/temp/nextcloud.sql"
+log "✅ Database dumped"
 
-# Dump Immich's separate database
-docker exec immich-postgres pg_dumpall -U "${IMMICH_DB_USER:-immich}" > "$BACKUP_DIR/immich_postgres.sql" 2>> "$LOG_FILE"
-log "✅ Immich PostgreSQL dump complete"
+# Back up everything
+log "📤 Uploading to Backblaze..."
+restic backup \
+  "$CLOUD_DIR/backups/temp" \
+  --tag database
 
-# ----------------------------------------------------------
-# Step 2: Initialize Restic repo (first run only)
-# ----------------------------------------------------------
-restic snapshots > /dev/null 2>&1 || {
-    log "📁 Initializing Restic repository..."
-    restic init
-    log "✅ Repository initialized"
-}
-
-# ----------------------------------------------------------
-# Step 3: Backup everything
-# ----------------------------------------------------------
-log "☁️ Starting Restic backup..."
+# Volumes: back up the named Docker volumes
+for volume in nextcloud_data vaultwarden_data openwebui_data; do
+  log "📦 Backing up volume: $volume"
+  docker run --rm \
+    -v "${volume}:/data:ro" \
+    -v "$CLOUD_DIR/backups/temp:/backup" \
+    alpine tar czf "/backup/${volume}.tar.gz" -C /data .
+done
 
 restic backup \
-    --verbose \
-    --tag "cloud-home" \
-    --exclude="*.log" \
-    --exclude="*.tmp" \
-    --exclude="cache/*" \
-    "$CLOUD_DIR/docker-compose.core.yml" \
-    "$CLOUD_DIR/docker-compose.data.yml" \
-    "$CLOUD_DIR/docker-compose.ai-media.yml" \
-    "$CLOUD_DIR/.env" \
-    "$CLOUD_DIR/caddy/" \
-    "$CLOUD_DIR/authelia/" \
-    "$CLOUD_DIR/postgres/" \
-    "$CLOUD_DIR/scripts/" \
-    "$BACKUP_DIR/postgres_all.sql" \
-    "$BACKUP_DIR/immich_postgres.sql" \
-    /var/lib/docker/volumes/ \
-    2>> "$LOG_FILE"
+  "$CLOUD_DIR/backups/temp" \
+  --tag volumes
 
-log "✅ Restic backup complete"
+# Keep 7 daily, 4 weekly, 3 monthly
+restic forget --keep-daily 7 --keep-weekly 4 --keep-monthly 3 --prune
 
-# ----------------------------------------------------------
-# Step 4: Apply retention policy
-# ----------------------------------------------------------
-log "🧹 Applying retention policy..."
-restic forget \
-    --keep-daily 7 \
-    --keep-weekly 4 \
-    --keep-monthly 6 \
-    --prune \
-    2>> "$LOG_FILE"
+# Cleanup temp
+rm -rf "$CLOUD_DIR/backups/temp"
 
-log "✅ Retention policy applied"
-
-# ----------------------------------------------------------
-# Step 5: Cleanup
-# ----------------------------------------------------------
-rm -rf "$BACKUP_DIR"
-log "🧹 Temp files cleaned"
-
-# ----------------------------------------------------------
-# Step 6: Verify
-# ----------------------------------------------------------
-log "🔍 Verifying backup integrity..."
-restic check --read-data-subset=5% 2>> "$LOG_FILE"
-log "✅ Backup verified"
-
-# Summary
-SNAPSHOT_SIZE=$(restic stats latest --mode raw-data 2>/dev/null | grep "Total Size" | awk '{print $3, $4}')
-log "📊 Latest snapshot size: ${SNAPSHOT_SIZE:-unknown}"
-log "🎉 Backup completed successfully!"
-
-# Keep only last 7 log files
-ls -t "$CLOUD_DIR/backups/backup_"*.log 2>/dev/null | tail -n +8 | xargs rm -f 2>/dev/null || true
+log "🎉 Backup complete!"
