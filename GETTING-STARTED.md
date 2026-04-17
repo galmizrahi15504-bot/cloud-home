@@ -1,203 +1,309 @@
 # ☁️ Cloud Home — Setup Guide
 
-> Total time: ~30 minutes.
-> After setup you never need the terminal again — everything runs from a web UI.
+> Everything here is copy-paste. You don't need to understand how it works to follow it.
+> If something goes wrong, ask Nicara — you can't permanently break anything.
 
 ---
 
-## What you'll have when done
+## What you're building
 
-| Service | Address | Replaces |
+Right now your stuff lives on other people's computers:
+- Files → Google Drive
+- Passwords → 1Password / LastPass
+- AI → ChatGPT
+
+After this setup, it lives on **your** computer (a small rented server). You control it. Nobody else has access. Costs ~€8/month total.
+
+You'll have:
+
+| What | Address | Replaces |
 |---|---|---|
 | Files & Photos | cloud.YOURDOMAIN.com | Google Drive + Photos |
 | Passwords | vault.YOURDOMAIN.com | 1Password |
 | AI Chat (Claude) | ai.YOURDOMAIN.com | ChatGPT |
-| Media | media.YOURDOMAIN.com | Netflix (optional) |
+| Movies & Shows | media.YOURDOMAIN.com | Netflix (optional) |
 
 ---
 
-## Step 1 — Buy a domain (5 min)
+## Before you start — create these accounts
 
-1. Go to **cloudflare.com** → Sign up (free)
-2. Left menu → **Domain Registration** → search a name
+These are all free. Do this first so you have everything ready.
+
+**1. Cloudflare** — cloudflare.com
+This is where you buy your domain name and manage your address on the internet.
+Sign up for a free account.
+
+**2. Hetzner** — hetzner.cloud
+This is where you rent your server (the computer in Germany).
+Sign up for a free account. They may ask for ID — normal, they're German.
+
+**3. Anthropic** — console.anthropic.com
+This is Claude (the AI). Sign up, go to **API Keys**, create a key, and save it somewhere.
+Also go to **Billing** and add a payment method. You pay only when you use it — a normal conversation costs about $0.02.
+
+**4. Backblaze** — backblaze.com
+This is where your automatic backups go. Free up to 10GB.
+Sign up, then go to **App Keys** → **Create an App Key**. Save the Key ID and the App Key.
+Also go to **Buckets** → **Create a Bucket**, name it `cloud-home-backup`.
+
+---
+
+## Step 1 — Buy a domain name (5 min)
+
+A domain is your address on the internet. Something like `galcloud.com` or `myprivatecloud.net`.
+
+1. Log into **Cloudflare** → left menu → **Domain Registration** → **Register Domains**
+2. Search for a name you like
 3. Buy it (~$10/year)
 
-✅ Done.
+You now have your address. ✅
 
 ---
 
-## Step 2 — Rent a server (5 min)
+## Step 2 — Rent your server (5 min)
 
-1. Go to **hetzner.cloud** → Sign up
-2. **New Project** → name it "Cloud Home"
-3. **Add Server**:
+1. Log into **Hetzner** → **New Project** → name it "Cloud Home"
+2. Click **Add Server** and pick exactly these settings:
 
-| Setting | Choose |
+| Setting | Pick This |
 |---|---|
 | Location | Falkenstein |
-| Image | **Ubuntu 24.04** |
-| Type | **CX22 — €3.29/month** (if Claude API only, no local AI) |
-| | **CX32 — €8.24/month** (if you also want local AI models) |
-| SSH Keys | Add your SSH key (see below) |
+| Image | Ubuntu 24.04 |
+| Type | **CX22** (€3.29/mo) if you only want Claude AI |
+| | **CX32** (€8.24/mo) if you also want free local AI models |
+| SSH Keys | See note below ↓ |
 
-> **SSH key (one-time setup):** Open terminal on your laptop and run:
-> `ssh-keygen -t ed25519` (press Enter 3 times)
-> Then run: `cat ~/.ssh/id_ed25519.pub` and paste the result into Hetzner.
+**Setting up your SSH key (one time only):**
+An SSH key is how your laptop proves to the server that it's you — like a key to a door.
 
-4. **Write down your server IP** (shown on the dashboard)
+On your laptop, open a terminal and run:
+```
+ssh-keygen -t ed25519
+```
+Press Enter three times (no need to set a passphrase).
 
-✅ Server is running.
+Then run:
+```
+cat ~/.ssh/id_ed25519.pub
+```
+This prints a long line of text. Copy it.
 
----
+Back on Hetzner, click **Add SSH Key**, paste that line, give it a name like "my laptop", save.
 
-## Step 3 — Connect domain to server (5 min)
+3. Click **Create & Buy Now**
+4. **Write down the IP address** shown on the dashboard (looks like: 65.108.123.45)
 
-1. Go to **Cloudflare** → your domain → **DNS**
-2. Add two records:
-
-| Type | Name | Value | Proxy |
-|---|---|---|---|
-| A | * | your server IP | Grey (DNS only) |
-| A | @ | your server IP | Grey (DNS only) |
-
-Wait 5 minutes.
-
-✅ Domain points to your server.
+Your server is running 24/7 from this moment. ✅
 
 ---
 
-## Step 4 — Install Coolify (5 min)
+## Step 3 — Connect your domain to your server (5 min)
 
-Coolify is the control panel for your cloud. Install it once, manage everything from a browser after that.
+This is how `yourdomain.com` knows to point to your server.
 
-SSH into your server:
+1. In Cloudflare → click your domain → **DNS** in the left menu
+2. Click **Add Record** and fill in:
+
+| Field | Value |
+|---|---|
+| Type | A |
+| Name | * |
+| IPv4 address | your server IP |
+| Proxy status | Grey cloud (DNS only — NOT orange) |
+
+Click Save.
+
+3. Click **Add Record** again:
+
+| Field | Value |
+|---|---|
+| Type | A |
+| Name | @ |
+| IPv4 address | your server IP |
+| Proxy status | Grey cloud |
+
+Click Save. Wait 5 minutes.
+
+Your domain now points to your server. ✅
+
+---
+
+## Step 4 — Connect to your server (1 min)
+
+Open a terminal on your laptop and type (replace with your actual IP):
 ```
 ssh root@YOUR_SERVER_IP
 ```
 
-Run this one command:
+If it asks "Are you sure you want to continue?" → type `yes` and press Enter.
+
+You're now inside your server. The commands you type here run on that computer in Germany. ✅
+
+---
+
+## Step 5 — Install the control panel (3 min)
+
+Coolify is the software that manages all your apps. Install it by pasting this one line:
+
 ```bash
 curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 ```
 
-Wait ~3 minutes.
-
-When it finishes, open your browser and go to:
+Wait about 3 minutes while it installs. When it's done, open your browser and go to:
 ```
 http://YOUR_SERVER_IP:8000
 ```
 
-Create your Coolify admin account.
+Create your Coolify admin account (username + password). This is the login for your control panel.
 
-✅ You now have a control panel for your server.
+Your control panel is live. You won't need the terminal again after this. ✅
 
 ---
 
-## Step 5 — Configure your domain in Coolify (2 min)
+## Step 6 — Set up your domain in Coolify (2 min)
 
 1. In Coolify → **Settings** (left sidebar)
-2. Under **Instance** → set your domain: `coolify.YOURDOMAIN.com`
-3. Enable **Auto SSL** (Coolify will get HTTPS certificates automatically)
+2. Find **Instance Domain** and set it to: `coolify.YOURDOMAIN.com`
+3. Turn on **Auto SSL**
 
-✅ SSL is now automatic for every app you deploy.
-
----
-
-## Step 6 — Deploy your apps (10 min)
-
-In Coolify, click **+ New Resource** → **Service** to browse the one-click app catalog.
-
-Deploy each of these:
-
-### 🔑 Vaultwarden (Passwords)
-- Search "Vaultwarden" → Deploy
-- Set domain: `vault.YOURDOMAIN.com`
-- Note the admin token it generates — save it somewhere safe
-- Click Deploy → wait ~30 seconds → it's live
-
-### ☁️ Nextcloud (Files & Photos)
-- Search "Nextcloud" → Deploy
-- Set domain: `cloud.YOURDOMAIN.com`
-- Set an admin username and password
-- Click Deploy → wait ~1 minute → it's live
-
-### 🤖 Open WebUI (AI Chat)
-- Search "Open WebUI" → Deploy
-- Set domain: `ai.YOURDOMAIN.com`
-- Add environment variable: `ANTHROPIC_API_KEY` = your Claude API key (see Step 7)
-- Click Deploy → wait ~30 seconds → it's live
-
-### 🎥 Jellyfin (Media) — optional
-- Search "Jellyfin" → Deploy
-- Set domain: `media.YOURDOMAIN.com`
-- Click Deploy
+From now on, every app you deploy will automatically get a secure HTTPS connection. ✅
 
 ---
 
-## Step 7 — Add Claude AI (5 min)
+## Step 7 — Deploy your apps (10 min)
 
-1. Go to **console.anthropic.com** → Sign up
-2. **API Keys** → **Create Key** → copy it
-3. In Coolify → find your Open WebUI service → **Environment Variables**
-4. Add: `ANTHROPIC_API_KEY` = paste your key
-5. Click **Save** → **Restart**
-
-Go to `ai.YOURDOMAIN.com` → create your account → Claude appears in the model picker.
-
-> **Cost:** Pay only when you use it. ~$0.01–0.05 per conversation. No monthly fee.
+In Coolify, click **+ New Resource** → **Service**.
+You'll see a list of apps. Find each one below and deploy it.
 
 ---
 
-## Step 8 — Free local AI (optional, CX32 only)
+### 🔑 Vaultwarden — Passwords
 
-If you picked the CX32 server and want a free private AI model:
+1. Search "Vaultwarden" → click it → click **Deploy**
+2. Set the domain to: `vault.YOURDOMAIN.com`
+3. Click **Deploy** and wait ~30 seconds
 
-In Coolify, find your Open WebUI service and add this environment variable:
-```
-OLLAMA_BASE_URL=http://ollama:11434
-```
+**After it's running:**
+- Go to `vault.YOURDOMAIN.com` in your browser
+- Click **Create Account** → fill in your details → create your account
+- **Important:** After you create your account, go back to Coolify → Vaultwarden → Environment Variables → change `SIGNUPS_ALLOWED` from `true` to `false` → click **Save + Restart**. This stops anyone else from registering.
 
-Then also deploy **Ollama** from the service catalog.
-
-After it starts, open a terminal and run:
-```bash
-docker exec ollama ollama pull phi3:mini
-```
-
-A free 2.3GB model, runs entirely on your server.
+On your phone/laptop: install the **Bitwarden** app → go to Settings → point it to `vault.YOURDOMAIN.com` → log in. Your passwords now sync to your own server. ✅
 
 ---
 
-## Step 9 — Backups (optional)
+### ☁️ Nextcloud — Files & Photos
 
-In Coolify → **Backups** — you can configure S3-compatible backups (Backblaze B2 works great, free up to 10GB).
+1. Search "Nextcloud" → pick **Nextcloud with PostgreSQL** → click **Deploy**
+2. Set the domain to: `cloud.YOURDOMAIN.com`
+3. Set an admin username and password
+4. Click **Deploy** and wait ~1 minute
 
-Backblaze: **backblaze.com** → sign up → create a bucket and App Key → paste into Coolify.
+**After it's running:**
+- Go to `cloud.YOURDOMAIN.com` → log in with the credentials you just set
+- On your phone/laptop: install the **Nextcloud** app → enter your server address → log in
+- On your phone: turn on auto photo backup in the app
+
+Your files and photos now sync to your own server. ✅
 
 ---
 
-## 🎉 Done!
+### 🤖 Open WebUI — AI Chat
 
-Monthly cost: **€3–9/month** depending on server size.
+1. Search "Open WebUI" → click it → click **Deploy**
+2. Set the domain to: `ai.YOURDOMAIN.com`
+3. Add an environment variable:
+   - Name: `ANTHROPIC_API_KEY`
+   - Value: your Anthropic key (the one you saved earlier)
+4. Click **Deploy** and wait ~30 seconds
+
+**After it's running:**
+- Go to `ai.YOURDOMAIN.com`
+- Click **Sign up** → create your account (the first account automatically becomes admin)
+- Pick **Claude** from the model dropdown → start chatting
+
+You pay Anthropic per message, not per month. A normal back-and-forth conversation costs about $0.02. ✅
 
 ---
 
-## Managing everything going forward
+### 🎥 Jellyfin — Movies & Shows (optional)
 
-Forget the terminal. Everything lives at `http://YOUR_SERVER_IP:8000` (or `coolify.YOURDOMAIN.com` once you set it up):
-- **Restart a service** → click Restart
-- **Update an app** → click Update (one click, zero downtime)
-- **Change a setting** → edit environment variables, click Save
-- **Add a new app** → click New Resource
+Only set this up if you have movie/show files you want to watch.
+
+1. Search "Jellyfin" → click it → click **Deploy**
+2. Set the domain to: `media.YOURDOMAIN.com`
+3. Click **Deploy** and wait ~30 seconds
+4. Go to `media.YOURDOMAIN.com` → follow the setup wizard
+
+To add media, you'll need to copy your files to the server. Ask Nicara when you're ready — it's a simple command. ✅
+
+---
+
+## Step 8 — Set up backups (5 min)
+
+This protects everything if the server ever has a problem.
+
+In Coolify → **Settings** → **Backup** → **Add S3 Storage**:
+
+| Field | Value |
+|---|---|
+| Name | Backblaze |
+| Endpoint | `https://s3.us-west-000.backblazeb2.com` |
+| Bucket | cloud-home-backup |
+| Access Key | your Backblaze Key ID |
+| Secret Key | your Backblaze App Key |
+
+Click **Save** → then **Backup Now** to test it.
+
+Set it to run automatically every night. ✅
+
+---
+
+## That's it! 🎉
+
+**What you have:**
+- All your files syncing to your own server
+- Your passwords on your own server
+- Claude AI available at your own private URL
+- Automatic nightly backups
+
+**Your monthly cost:** €3–8 for the server + ~$10/year for the domain + a few dollars/month for Claude depending on how much you use it.
+
+---
+
+## Managing everything day-to-day
+
+Go to `coolify.YOURDOMAIN.com` (or `http://YOUR_SERVER_IP:8000`).
+
+- **Restart something:** click the service → click Restart
+- **Something broke:** click the service → click Logs
+- **Update an app:** click the service → click Update
+- **Add a new app:** click New Resource
+
+You never need to touch the terminal again.
+
+---
+
+## In 6 months — moving to your own hardware
+
+When you get your own PC/mini server at home, the move is:
+1. Install Coolify on the new machine (same one command)
+2. Restore from your Backblaze backup (one click in Coolify)
+3. Change your Cloudflare DNS to point to your home IP (2 minute change)
+4. Delete the Hetzner server
+
+Everything — files, passwords, AI history, settings — comes with you.
+Your monthly cost drops to basically €0 (just the domain).
+
+For full details: see [MIGRATION.md](MIGRATION.md)
 
 ---
 
 ## Troubleshooting
 
-| Problem | Fix |
+| Problem | What to do |
 |---|---|
-| App won't start | Coolify → your service → click Logs |
-| Forgot password | Coolify → service → environment variables |
-| Something broke | Coolify → service → Restart |
-| Really broken | Coolify → service → Redeploy |
-| Confused | Ask Nicara 😊 |
+| App won't load | Coolify → find the service → click Logs |
+| Forgot a password | Coolify → find the service → Environment Variables |
+| Something crashed | Coolify → find the service → click Restart |
+| Really confused | Ask Nicara 😊 |
