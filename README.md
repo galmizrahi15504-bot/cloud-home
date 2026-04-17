@@ -2,20 +2,28 @@
 
 Your self-hosted cloud. Files, passwords, AI, media. ~€5/month.
 
-## Quick Start
+## Guides
 
-→ Read [GETTING-STARTED.md](GETTING-STARTED.md)
-
-## Stack
-
-| App | Purpose |
+| Guide | What it covers |
 |---|---|
-| [Coolify](https://coolify.io) | Control panel — deploys and manages everything |
-| [Nextcloud](https://nextcloud.com) | Files + Photos |
-| [Vaultwarden](https://github.com/dani-garcia/vaultwarden) | Passwords (Bitwarden-compatible) |
-| [Open WebUI](https://openwebui.com) | AI chat (Claude + local models) |
-| [Ollama](https://ollama.com) | Local AI model runner (optional) |
-| [Jellyfin](https://jellyfin.org) | Media server (optional) |
+| [GETTING-STARTED.md](GETTING-STARTED.md) | First-time setup, step by step |
+| [MIGRATION.md](MIGRATION.md) | Moving to new hardware in 6 months |
+| [SWAP-GUIDE.md](SWAP-GUIDE.md) | How to replace any app with an alternative |
+
+---
+
+## The Stack
+
+| App | Purpose | Swap it with |
+|---|---|---|
+| [Coolify](https://coolify.io) | Control panel — manages everything | Portainer, Dokku |
+| [Nextcloud](https://nextcloud.com) | Files + Photos | Seafile, Syncthing |
+| [Vaultwarden](https://github.com/dani-garcia/vaultwarden) | Passwords | Bitwarden hosted |
+| [Open WebUI](https://openwebui.com) | AI chat (Claude + local) | LibreChat, Lobe Chat |
+| [Ollama](https://ollama.com) | Local AI models (optional) | LM Studio (on desktop) |
+| [Jellyfin](https://jellyfin.org) | Media server (optional) | Plex, Emby |
+
+---
 
 ## Server
 
@@ -23,10 +31,17 @@ Hetzner VPS:
 - **CX22 (€3.29/mo)** — Claude API only, no local AI
 - **CX32 (€8.24/mo)** — Full stack including local AI models
 
-## The approach
+---
 
-Coolify handles all the infrastructure: reverse proxy, SSL certificates, Docker, updates. You manage everything through a web UI — no terminal needed after initial setup.
+## Architecture
 
-## Month 6
+```
+Internet → Coolify (manages SSL + routing)
+              ├── cloud.DOMAIN     → Nextcloud
+              ├── vault.DOMAIN     → Vaultwarden
+              ├── ai.DOMAIN        → Open WebUI
+              └── media.DOMAIN     → Jellyfin
+```
 
-Move to your own hardware (mini PC ~$150). Coolify makes migration trivial — export your services, import on the new machine.
+Everything runs in Docker containers managed by Coolify.
+Coolify handles SSL certificates, reverse proxy, restarts, and updates automatically.
