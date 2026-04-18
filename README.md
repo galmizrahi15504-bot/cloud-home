@@ -2,8 +2,8 @@
 
 Your private cloud and full AI lab on one server. Passwords, files, AI chat, AI coding agent, multi-agent research, and workflow automation.
 
-**Cost:** ~€20–45/month depending on AI usage.  
-**Time:** ~1 hour from zero to fully running.  
+**Cost:** ~€23–48/month depending on AI usage.  
+**Time:** ~30 min prep (day before) + ~1 hour setup (setup day).  
 **Skill needed:** None. Every command is copy-paste.
 
 ---
@@ -23,9 +23,27 @@ Your private cloud and full AI lab on one server. Passwords, files, AI chat, AI 
 
 ---
 
-# PART 1 — Preparation
+# THE DAY BEFORE — Checklist
 
-Do this before your PC arrives. ~30 minutes, all free.
+Do this the day before you want to set everything up. Print this or keep it on your phone.
+
+### ✅ To-do list
+
+- [ ] **Cloudflare** — create account, buy a domain (~$10/year) → write down the domain name
+- [ ] **Hetzner** — create account, complete ID verification → write down login
+- [ ] **Anthropic** — create account, create API key, add payment method → write down the key (starts with `sk-ant-`)
+- [ ] **SSH key** — run `ssh-keygen -t ed25519` in terminal, then `cat ~/.ssh/id_ed25519.pub` → copy the output
+- [ ] **Save all 4 things** in one note (domain, Hetzner login, API key, SSH public key)
+
+That's it. ~30 minutes. Everything else happens on setup day.
+
+> ⚠️ **Hetzner ID verification can take up to a day** — that's why you do this the day before. Everything else is instant.
+
+---
+
+# PART 1 — Preparation (detailed steps)
+
+~30 minutes, all free.
 
 You need **3 accounts** and **1 SSH key**. Save everything in one place (a note, a doc, whatever — you'll need it all in Part 2).
 
