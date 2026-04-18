@@ -32,6 +32,7 @@ Do this the day before you want to set everything up. Print this or keep it on y
 - [ ] **Cloudflare** — create account, buy a domain (~$10/year) → write down the **domain name**
 - [ ] **Hetzner** — create account, complete ID verification → write down **login**
 - [ ] **Anthropic** — create account, create API key, add payment method → write down the **API key** (starts with `sk-ant-`)
+- [ ] **Tavily** (optional, free) — [tavily.com](https://tavily.com) → create account → copy API key. Gives your AI coder the ability to search the web while working. Free = 1,000 searches/month.
 - [ ] **Backblaze** (optional, for offsite backups) — create account, create bucket `cloud-home-backup`, create app key → write down **endpoint URL, Key ID, App Key**
 - [ ] **Save everything** in one note
 
@@ -330,9 +331,10 @@ volumes:
 
 7. Click the **Settings** gear icon ⚙️
 8. **LLM Provider** → **Anthropic**
-9. **API Key** → paste your key
+9. **API Key** → paste your Anthropic key
 10. **Model** → `claude-sonnet-4-20250514`
-11. Click **Save**
+11. (Optional) **Search API Key (Tavily)** → paste your Tavily key — this lets the AI search the web while coding
+12. Click **Save**
 
 Type any task in English: *"Build a Python API that fetches Bitcoin prices every hour and stores them in a database"* — and watch it code, test, and fix issues automatically.
 
