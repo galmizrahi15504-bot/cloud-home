@@ -29,14 +29,15 @@ Do this the day before you want to set everything up. Print this or keep it on y
 
 ### ✅ To-do list
 
-- [ ] **Cloudflare** — create account, buy a domain (~$10/year) → write down the domain name
-- [ ] **Hetzner** — create account, complete ID verification → write down login
-- [ ] **Anthropic** — create account, create API key, add payment method → write down the key (starts with `sk-ant-`)
-- [ ] **Save all 3 things** in one note (domain name, Hetzner login, API key)
+- [ ] **Cloudflare** — create account, buy a domain (~$10/year) → write down the **domain name**
+- [ ] **Hetzner** — create account, complete ID verification → write down **login**
+- [ ] **Anthropic** — create account, create API key, add payment method → write down the **API key** (starts with `sk-ant-`)
+- [ ] **Backblaze** (optional, for offsite backups) — create account, create bucket `cloud-home-backup`, create app key → write down **endpoint URL, Key ID, App Key**
+- [ ] **Save everything** in one note
 
-That's it. ~20 minutes. The SSH key is generated on setup day on your new PC.
+The **SSH key** is the only thing you can't do now — it must be generated on setup day on the actual PC you'll use to connect to the server.
 
-> ⚠️ **Hetzner ID verification can take up to a day** — that's why you do this the day before. Everything else is instant.
+> ⚠️ **Hetzner ID verification can take up to a day** — that's why you do this now. Everything else is instant.
 
 ---
 
