@@ -1,247 +1,179 @@
 # ☁️ Cloud Home + AI Workshop
 
-Your own private cloud **and** AI-powered research & project lab.  
-Files, passwords, AI chat, coding agents, multi-agent orchestration.  
-~€15/month. No technical knowledge needed. Everything is copy-paste.
+Your private cloud and AI lab. Files, passwords, AI coding agent, research teams, automation.  
+~€20/month. Copy-paste every step.
 
 ---
 
-## What you'll have when done
+## What you'll have
 
-| App | Your URL | What it does |
+| App | URL | Replaces |
 |---|---|---|
-| Files & Photos | cloud.YOURDOMAIN.com | Google Drive + Google Photos replacement |
-| Passwords | vault.YOURDOMAIN.com | 1Password replacement |
-| AI Chat | ai.YOURDOMAIN.com | ChatGPT replacement (uses Claude) |
-| AI Coder | code.YOURDOMAIN.com | AI that writes & runs code for you |
-| Workflow Engine | auto.YOURDOMAIN.com | Connects everything, runs automations |
-| Movies & Shows | media.YOURDOMAIN.com | Netflix replacement (optional) |
+| Passwords | vault.YOURDOMAIN.com | 1Password |
+| Files & Photos | cloud.YOURDOMAIN.com | Google Drive + Photos |
+| AI Chat | ai.YOURDOMAIN.com | ChatGPT |
+| AI Coder | code.YOURDOMAIN.com | Cursor / Devin |
+| Automation Engine | auto.YOURDOMAIN.com | Zapier |
+| Research Agents | (runs on server) | Manual research |
+| Movies (optional) | media.YOURDOMAIN.com | Netflix |
 
 ---
 
-# PART 1 — Before your new computer arrives
+# PART 1 — Prep (do this now, before your PC arrives)
 
-All free. ~30 minutes. Do this now so there's zero waiting later.
+~30 minutes. All free.
 
-## ✅ Create these 4 accounts
+### 1. Buy a domain — [cloudflare.com](https://cloudflare.com)
+Sign up → left menu → **Domain Registration** → search a name → buy it (~$10/year).  
+💾 Save your **domain name**.
 
-### 1. Cloudflare — [cloudflare.com](https://cloudflare.com)
-- Sign up (free)
-- Left menu → **Domain Registration** → search a name you like → buy it (~$10/year)
-- This is your address on the internet (e.g. `galcloud.com`)
-- 💾 **Write down:** your domain name
+### 2. Create a server account — [hetzner.cloud](https://hetzner.cloud)
+Sign up → complete ID verification if asked (can take a day).  
+Don't buy a server yet.  
+💾 Save your **login**.
 
-### 2. Hetzner — [hetzner.cloud](https://hetzner.cloud)
-- Sign up (free)
-- They may ask for ID verification — do it now, can take a day
-- Don't buy a server yet — just the account
-- 💾 **Write down:** your login
+### 3. Get an AI key — [console.anthropic.com](https://console.anthropic.com)
+Sign up → **API Keys** → **Create Key** → copy it.  
+Go to **Billing** → add payment method.  
+This one key powers every AI tool in the setup.  
+💾 Save your **API key** (starts with `sk-ant-`).
 
-### 3. Anthropic — [console.anthropic.com](https://console.anthropic.com)
-- Sign up → **API Keys** → **Create Key** → copy the key
-- Go to **Billing** → add a payment method (you won't be charged until you use it)
-- This is what powers all your AI tools — one key runs everything
-- 💾 **Write down:** your API key (starts with `sk-ant-`)
+### 4. Generate your SSH key
 
-### 4. Backblaze — [backblaze.com](https://backblaze.com)
-- Sign up (free)
-- **Buckets** → **Create Bucket** → name it `cloud-home-backup` → create it
-- On the bucket page, note the **Endpoint URL** (looks like `https://s3.us-west-004.backblazeb2.com`)
-- **App Keys** → **Create App Key** → copy both the Key ID and the App Key
-- 💾 **Write down:** Endpoint URL, Key ID, App Key
+Open a terminal (Mac: Cmd+Space → Terminal / Windows: PowerShell):
 
-## ✅ Generate your SSH key
-
-This is how your laptop securely talks to your server — like a house key.
-
-Open a terminal:
-- **Mac:** Cmd+Space → type Terminal → open it
-- **Windows:** Windows key → type PowerShell → open it
-
-Run:
 ```
 ssh-keygen -t ed25519
 ```
-Press Enter three times (no password needed).
 
-Then run:
+Press Enter three times. Then:
+
 ```
 cat ~/.ssh/id_ed25519.pub
 ```
-This prints one long line of text.
 
-💾 **Copy and save** that entire line — you'll paste it during server setup.
-
----
-
-> ✅ **Part 1 done.** Save everything in one place (notes app, doc, whatever). When your new computer arrives, continue to Part 2.
+💾 Save that entire line of text.
 
 ---
 
-# PART 2 — Set up your server
+> ✅ **Part 1 done.** Keep all 4 things saved together. Continue when your PC arrives.
 
-Total time: ~15 minutes.
+---
 
-## Step 1 — Buy and start the server (5 min)
+# PART 2 — Server setup (~15 min)
 
-1. Log into **Hetzner** → **New Project** → name it "Cloud Home"
-2. Click **Add Server** → pick these settings:
+### Step 1 — Create the server
 
-| Setting | Choose |
+Hetzner → **New Project** → name it "Cloud Home" → **Add Server**:
+
+| Setting | Pick this |
 |---|---|
-| Location | Falkenstein (cheapest, fast in Europe) |
+| Location | Falkenstein |
 | Image | Ubuntu 24.04 |
-| Type | **CPX31** — 4 AMD cores, 8GB RAM, 160GB disk — ~€14/mo |
-| SSH Keys | Click **Add SSH Key** → paste the line from Part 1 → name it "my laptop" |
+| Type | **CPX31** — 4 AMD cores, 8GB RAM, 160GB disk |
+| SSH Keys | **Add SSH Key** → paste your key from Part 1 |
 
-3. Click **Create & Buy Now**
-4. 💾 **Write down** the server IP address shown on the dashboard (looks like `65.108.123.45`)
+Click **Create & Buy Now**.  
+💾 Save the **server IP** (e.g. `65.108.123.45`).
 
-> **Why CPX31?** It's x86/AMD — every tool we'll install is guaranteed to work (ARM servers are cheaper but many AI tools don't support them yet). 4 cores and 8GB RAM handles all your personal apps + AI tools comfortably. If you outgrow it, Hetzner lets you upgrade in 30 seconds with no data loss.
+### Step 2 — Point your domain to the server
 
-## Step 2 — Point your domain to the server (5 min)
+Cloudflare → your domain → **DNS** → add two records:
 
-1. Log into **Cloudflare** → click your domain → **DNS** in the left menu
-2. Click **Add Record**:
+| Type | Name | IPv4 address | Proxy |
+|---|---|---|---|
+| A | `*` | your server IP | **Grey cloud (DNS only)** |
+| A | `@` | your server IP | **Grey cloud** |
 
-| Field | Value |
-|---|---|
-| Type | A |
-| Name | `*` |
-| IPv4 address | your server IP |
-| Proxy status | **Grey cloud — DNS only** (if it's orange, click it to toggle OFF) |
+> ⚠️ If the cloud icon is orange, click it to turn it grey. This is important.
 
-Click **Save**.
+Wait 5 minutes.
 
-3. Click **Add Record** again:
+### Step 3 — Connect and install Coolify
 
-| Field | Value |
-|---|---|
-| Type | A |
-| Name | `@` |
-| IPv4 address | your server IP |
-| Proxy status | **Grey cloud** |
-
-Click **Save**. Wait 5 minutes for it to spread across the internet.
-
-## Step 3 — Connect to your server (1 min)
-
-Open a terminal on your new computer and run (replace YOUR_SERVER_IP with the actual IP):
 ```
 ssh root@YOUR_SERVER_IP
 ```
-If asked "Are you sure you want to continue connecting?" → type `yes` → press Enter.
 
-You're now inside your server. Everything from here is pasted into this terminal window.
-
-## Step 4 — Install Coolify (3 min)
-
-Coolify is your control panel — a website where you manage all your apps. After this, you barely need the terminal again.
+Type `yes` if asked. Then paste:
 
 ```bash
 curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 ```
 
-Wait ~3 minutes. When it finishes, open your browser and go to:
+Wait ~3 minutes. Open your browser:
+
 ```
 http://YOUR_SERVER_IP:8000
 ```
-Create your admin account (pick a strong password — this controls everything).
 
-## Step 5 — Set your domain in Coolify (2 min)
+Create your admin account. Then:
 
-1. Coolify → **Settings** (left sidebar)
-2. **Instance Domain** → type `coolify.YOURDOMAIN.com` (replace with your actual domain)
-3. Turn on **Auto SSL**
-4. Click **Save**
+1. **Settings** → **Instance Domain** → type `coolify.YOURDOMAIN.com`
+2. Turn on **Auto SSL** → **Save**
 
-Now every app you deploy through Coolify gets a secure HTTPS address automatically.
+Coolify is now your control panel for everything.
 
 ---
 
-> ✅ **Server is live.** Now let's put things on it.
+# PART 3 — Personal cloud (quick)
+
+All done through Coolify. Same flow each time:  
+**+ New Resource** → **Service** → search → set domain → **Deploy**.
+
+### 🔑 Vaultwarden (passwords)
+
+1. Search "Vaultwarden" → domain: `vault.YOURDOMAIN.com` → **Deploy**
+2. Open `https://vault.YOURDOMAIN.com` → **Create Account**
+3. Back in Coolify → Vaultwarden → **Environment Variables** → `SIGNUPS_ALLOWED` = `false` → **Save** → **Restart**
+
+Install the **Bitwarden** app on your phone → Settings → Self-hosted → `https://vault.YOURDOMAIN.com`.
+
+### ☁️ Nextcloud (files & photos)
+
+1. Search "Nextcloud" → pick **Nextcloud with PostgreSQL** → domain: `cloud.YOURDOMAIN.com` → set admin user/password → **Deploy**
+2. Open `https://cloud.YOURDOMAIN.com` → log in
+
+Install the **Nextcloud** app on your phone → auto upload photos.
+
+### 🎥 Jellyfin (optional — movies & shows)
+
+Search "Jellyfin" → domain: `media.YOURDOMAIN.com` → **Deploy** → follow the setup wizard.
 
 ---
 
-# PART 3 — Deploy your personal cloud apps
+# PART 4 — AI Workshop
 
-For each app below: Coolify → **+ New Resource** → **Service**.
-
-## 🔑 Vaultwarden — Your password manager
-
-1. Search "Vaultwarden" → select it
-2. Set domain to `vault.YOURDOMAIN.com` (replace with your actual domain) → click **Deploy**
-3. Wait 30 seconds, then open `https://vault.YOURDOMAIN.com` in your browser
-4. Click **Create Account** → register with your email and a strong password
-5. **Lock it down:** Back in Coolify → click on Vaultwarden → **Environment Variables** → find or add `SIGNUPS_ALLOWED` → set it to `false` → **Save** → click **Restart**
-
-**On your phone & laptop:** Install the **Bitwarden** app (free) → Settings → Self-hosted → enter `https://vault.YOURDOMAIN.com` → log in with the account you just created.
+This is the core. Four tools that work together.
 
 ---
 
-## ☁️ Nextcloud — Your files & photos
+## 🤖 Open WebUI — AI chat (your ChatGPT replacement)
 
-1. Coolify → **+ New Resource** → **Service** → search "Nextcloud" → pick **Nextcloud with PostgreSQL**
-2. Set domain to `cloud.YOURDOMAIN.com` → set an admin username and password → click **Deploy**
-3. Wait ~2 minutes, then open `https://cloud.YOURDOMAIN.com` → log in with the admin credentials you set
-
-**On your phone:** Install the **Nextcloud** app (free) → enter `https://cloud.YOURDOMAIN.com` → log in → go to Settings → Auto Upload → turn it on for photos.
-
----
-
-## 🤖 Open WebUI — Your AI chat
-
-1. Coolify → **+ New Resource** → **Service** → search "Open WebUI" → select it
-2. Set domain to `ai.YOURDOMAIN.com` → click **Deploy**
-3. Wait 30 seconds, then open `https://ai.YOURDOMAIN.com`
-4. Click **Sign Up** → create your account (the first account automatically becomes the admin)
-5. **Connect Claude:** Click your name/icon (top-right) → **Admin Panel** → **Settings** → **Connections**
-6. Look for an **Anthropic** section → paste your API key → click the checkmark/verify button → **Save**
-
-> **If you don't see an Anthropic section:** Look for an "Add Connection" or "+" button on the Connections page. Select "Anthropic" as the provider, paste your API key, and save. Then refresh the page.
-
-7. Go back to the main chat → click the **model dropdown** at the top → pick any Claude model (Claude Sonnet is a great default)
+1. Coolify → **+ New Resource** → **Service** → search "Open WebUI" → domain: `ai.YOURDOMAIN.com` → **Deploy**
+2. Open `https://ai.YOURDOMAIN.com` → **Sign Up** (first account = admin)
+3. Top-right → **Admin Panel** → **Settings** → **Connections**
+4. Find **Anthropic** (or click "+" to add it) → paste your API key → verify → **Save**
+5. Back to chat → model dropdown → pick **Claude Sonnet**
 
 ---
 
-## 🎥 Jellyfin — Movies & shows (optional)
+## ⚡ n8n — Automation engine (your Zapier replacement)
 
-1. Coolify → **+ New Resource** → **Service** → search "Jellyfin" → select it
-2. Set domain to `media.YOURDOMAIN.com` → click **Deploy**
-3. Wait 30 seconds, then open `https://media.YOURDOMAIN.com` → follow the setup wizard
+1. Coolify → **+ New Resource** → **Service** → search "n8n" → domain: `auto.YOURDOMAIN.com` → **Deploy**
+2. Open `https://auto.YOURDOMAIN.com` → create your owner account
+3. **Credentials** → **Add Credential** → search "Anthropic" → paste your API key → **Save**
 
----
-
-> ✅ **Personal cloud is running.** Now for the AI powerhouse.
+Now any workflow you build can use Claude. You create automations by dragging and connecting blocks — no coding.
 
 ---
 
-# PART 4 — Deploy your AI Workshop
+## 🖥️ OpenHands — AI coding agent (builds software for you)
 
-## ⚡ n8n — Your automation brain
+You describe what you want in plain English. It writes the code, runs it, tests it, fixes bugs.
 
-n8n connects all your tools together. Think of it as a robot secretary: "When X happens, do Y, then Z."
-
-1. Coolify → **+ New Resource** → **Service** → search "n8n" → select it
-2. Set domain to `auto.YOURDOMAIN.com` → click **Deploy**
-3. Wait 30 seconds, then open `https://auto.YOURDOMAIN.com`
-4. n8n asks you to create an owner account — fill in your name, email, and a strong password
-5. You're in!
-
-### Connect Claude to n8n
-
-1. Left sidebar → **Credentials** → **Add Credential**
-2. Search "Anthropic" → select it → paste your API key → click **Save**
-3. Done — now any workflow you build can use Claude as its brain
-
----
-
-## 🖥️ OpenHands — Your AI coding agent
-
-OpenHands is an AI that writes code, runs it, tests it, and fixes bugs — all by itself. You describe what you want in plain English, it builds it.
-
-1. Coolify → **+ New Resource** → **Docker Compose** (not "Service" — this one uses a custom setup)
-2. In the editor that appears, **delete everything** and paste this:
+1. Coolify → **+ New Resource** → **Docker Compose**
+2. Delete everything in the editor, paste this:
 
 ```yaml
 services:
@@ -264,77 +196,34 @@ volumes:
   openhands-data:
 ```
 
-3. Click **Save**
-4. In the service settings, set domain to `code.YOURDOMAIN.com`
-5. Click **Deploy** → wait ~2 minutes (it downloads a lot the first time)
-6. Open `https://code.YOURDOMAIN.com` in your browser
-
-### Configure OpenHands
-
-1. Click the **Settings** gear icon (⚙️)
-2. **LLM Provider** → select **Anthropic**
-3. **API Key** → paste your Anthropic API key
-4. **Model** → select **claude-sonnet-4-20250514** (best balance of speed and quality for coding)
-5. Click **Save**
-
-You're ready! Type any task in plain English and watch it work.
-
-> **Tip:** Use Sonnet for everyday coding. For complex architecture or design decisions, switch the model to **claude-opus-4-0** in Settings.
+3. **Save** → Coolify shows the service overview → find the **Domains** field → type `code.YOURDOMAIN.com` → **Deploy**
+4. Wait ~2 minutes (first run downloads extra components), then open `https://code.YOURDOMAIN.com`
+5. Settings ⚙️ → **Anthropic** → paste API key → model: **claude-sonnet-4-20250514** → **Save**
 
 ---
 
-## 🧠 CrewAI — Your multi-agent research team
+## 🧠 CrewAI — Multi-agent research teams
 
-CrewAI lets you assemble teams of AI agents that collaborate on complex tasks. One researches, one analyzes, one writes — they coordinate automatically.
+Multiple AI agents that collaborate: one researches, one analyzes, one writes. They talk to each other and build on each other's work.
 
-This one needs a few terminal commands. Open a terminal and connect to your server:
+SSH into your server:
 
 ```bash
 ssh root@YOUR_SERVER_IP
 ```
 
-### Step 1 — Install CrewAI
-
-Paste this block:
+Paste this entire block — it installs everything and creates a ready-to-use research crew:
 
 ```bash
+# Install CrewAI
 apt update && apt install -y python3 python3-pip python3-venv
 mkdir -p /opt/crewai
 python3 -m venv /opt/crewai/venv
 /opt/crewai/venv/bin/pip install 'crewai[tools]'
-```
 
-Wait ~1 minute for it to install.
-
-### Step 2 — Save your API key
-
-Run this command, but **first replace `sk-ant-PASTE-YOUR-ACTUAL-KEY-HERE` with your real Anthropic API key:**
-
-```bash
-echo 'ANTHROPIC_API_KEY=sk-ant-PASTE-YOUR-ACTUAL-KEY-HERE' > /opt/crewai/.env
-```
-
-To verify it saved correctly:
-```bash
-cat /opt/crewai/.env
-```
-You should see your key. If it still says the placeholder text, run the command again with your real key.
-
-### Step 3 — Create your research crew
-
-Paste this entire block as-is (no edits needed):
-
-```bash
+# Create the research crew script
 cat > /opt/crewai/research_crew.py << 'CREW'
-"""
-Deep Research Crew — 3 AI agents that collaborate on any research topic.
-
-Usage:
-  cd /opt/crewai && source venv/bin/activate && export $(cat .env | xargs)
-  python research_crew.py "your topic here"
-"""
-import sys
-import os
+import sys, os
 from crewai import Agent, Task, Crew, Process
 
 topic = sys.argv[1] if len(sys.argv) > 1 else "AI agent orchestration best practices"
@@ -342,241 +231,177 @@ topic = sys.argv[1] if len(sys.argv) > 1 else "AI agent orchestration best pract
 researcher = Agent(
     role="Senior Research Analyst",
     goal=f"Find comprehensive, accurate information about: {topic}",
-    backstory="You are an expert researcher who digs deep, finding primary sources, data, and expert opinions. You never make claims without evidence.",
-    verbose=True,
-    llm="anthropic/claude-sonnet-4-20250514"
+    backstory="Expert researcher. Finds primary sources, data, expert opinions. Never claims without evidence.",
+    verbose=True, llm="anthropic/claude-sonnet-4-20250514"
 )
-
 analyst = Agent(
     role="Critical Analyst",
-    goal="Evaluate research findings for accuracy, identify patterns, and draw conclusions",
-    backstory="You are a sharp analytical thinker who spots connections others miss. You separate strong findings from weak ones.",
-    verbose=True,
-    llm="anthropic/claude-sonnet-4-20250514"
+    goal="Evaluate research findings, identify patterns, draw conclusions",
+    backstory="Sharp analytical thinker. Spots connections others miss. Separates strong findings from weak.",
+    verbose=True, llm="anthropic/claude-sonnet-4-20250514"
 )
-
 writer = Agent(
     role="Report Writer",
-    goal="Create a clear, actionable report from the research and analysis",
-    backstory="You write reports that are easy to understand but thorough. You focus on what matters and always include concrete next steps.",
-    verbose=True,
-    llm="anthropic/claude-sonnet-4-20250514"
+    goal="Create a clear, actionable report from research and analysis",
+    backstory="Writes thorough but readable reports. Focuses on what matters. Always includes next steps.",
+    verbose=True, llm="anthropic/claude-sonnet-4-20250514"
 )
 
 research_task = Task(
-    description=f"Research this topic thoroughly: {topic}. Find at least 5 key findings with sources.",
-    expected_output="A detailed research document with findings, sources, and key data points.",
+    description=f"Research thoroughly: {topic}. Find at least 5 key findings with sources.",
+    expected_output="Detailed research with findings, sources, and data points.",
     agent=researcher
 )
-
 analysis_task = Task(
-    description="Analyze the research findings. Identify the strongest insights, any contradictions, and what it all means.",
-    expected_output="An analysis highlighting key patterns, reliability of findings, and strategic implications.",
+    description="Analyze the research. Identify strongest insights, contradictions, and implications.",
+    expected_output="Analysis with key patterns, reliability assessment, and strategic implications.",
     agent=analyst
 )
-
 report_task = Task(
-    description="Write a final report combining the research and analysis. Include: summary, key findings, recommendations, and next steps.",
-    expected_output="A polished report in markdown format, ready to read and act on.",
+    description="Write final report: summary, key findings, recommendations, next steps.",
+    expected_output="Polished markdown report ready to read and act on.",
     agent=writer
 )
 
 crew = Crew(
     agents=[researcher, analyst, writer],
     tasks=[research_task, analysis_task, report_task],
-    process=Process.sequential,
-    verbose=True
+    process=Process.sequential, verbose=True
 )
 
-print(f"\n🚀 Starting deep research on: {topic}\n{'='*60}\n")
+print(f"\n🚀 Researching: {topic}\n{'='*60}\n")
 result = crew.kickoff()
-print(f"\n{'='*60}\n📋 FINAL REPORT\n{'='*60}\n")
-print(result)
+print(f"\n{'='*60}\n📋 FINAL REPORT\n{'='*60}\n{result}")
 CREW
+
+echo "✅ CrewAI installed and ready."
 ```
 
-### Step 4 — Test it
+Now set your API key — **replace the placeholder with your actual key:**
+
+```bash
+echo 'ANTHROPIC_API_KEY=sk-ant-PASTE-YOUR-ACTUAL-KEY-HERE' > /opt/crewai/.env
+```
+
+Verify it saved:
+
+```bash
+cat /opt/crewai/.env
+```
+
+Test it:
 
 ```bash
 cd /opt/crewai && source venv/bin/activate && export $(cat .env | xargs)
 python research_crew.py "best self-hosted AI tools 2026"
 ```
 
-You'll see three AI agents discussing and building on each other's work in real time. The final output is a polished research report. (This takes a few minutes and costs a few cents in API usage.)
+Three agents work together in real time. Takes a few minutes, costs a few cents.
 
 ---
 
-> ✅ **AI Workshop deployed.** Now let's connect the pieces.
-
----
-
-# PART 5 — How everything works together
+# PART 5 — How it all connects
 
 ```
-You (or a schedule/trigger)
+You (or a schedule)
     │
     ▼
-  n8n — your automation brain (auto.YOURDOMAIN.com)
+  n8n (auto.YOURDOMAIN.com) ← the brain
     │
-    ├──→ OpenHands — for coding tasks (code.YOURDOMAIN.com)
-    │       AI writes, tests, and deploys code
-    │
-    ├──→ CrewAI — for research tasks (runs on server via SSH)
-    │       Multiple AI agents collaborate on deep research
-    │
-    ├──→ Claude (via API) — for quick AI questions
-    │
-    └──→ Nextcloud — saves all results to your files (cloud.YOURDOMAIN.com)
+    ├─→ OpenHands (code.YOURDOMAIN.com) — coding tasks
+    ├─→ CrewAI (server) — deep research
+    ├─→ Claude API — quick questions
+    └─→ Nextcloud (cloud.YOURDOMAIN.com) — saves results
 ```
 
-### Example automations you can build in n8n
+### Automations you can build in n8n
 
 | Automation | What it does |
 |---|---|
-| Daily briefing | Every morning, Claude researches topics you care about and sends a summary |
-| GitHub watcher | New issue in your repo → OpenHands automatically investigates |
-| Research pipeline | Drop a topic in a Nextcloud folder → full research report appears later |
-| Backup monitor | Checks if backups ran successfully, alerts you if not |
-| Trading research | CrewAI agents analyze market data and write strategy reports |
+| Daily briefing | Claude researches your topics every morning, sends summary |
+| GitHub watcher | New repo issue → OpenHands investigates automatically |
+| Research pipeline | Drop topic in Nextcloud folder → research report appears |
+| Trading research | CrewAI analyzes markets, writes strategy reports |
 
-All built visually in n8n — drag, drop, connect. No coding.
+All visual. Drag, drop, connect. No coding needed.
 
 ---
 
-# PART 6 — Backups
+# PART 6 — Backups (optional but recommended)
+
+**Quick option:** Hetzner dashboard → your server → **Snapshots** → **Create Snapshot**. Enable automatic snapshots (~€2.80/month). Done.
+
+**Full option (offsite):** Create a [Backblaze](https://backblaze.com) account (free) → create a bucket called `cloud-home-backup` → get your Key ID + App Key. Then:
 
 Coolify → **Settings** → **Backup** → **Add S3 Storage**:
 
 | Field | Value |
 |---|---|
-| Name | Backblaze |
-| Endpoint | your Backblaze endpoint URL from Part 1 |
+| Endpoint | your Backblaze endpoint URL |
 | Bucket | `cloud-home-backup` |
 | Access Key | your Backblaze Key ID |
 | Secret Key | your Backblaze App Key |
 
-Click **Save** → **Backup Now** to test → turn on **Scheduled Backups** (daily).
+**Save** → **Backup Now** to test → turn on **Scheduled Backups** (daily).
 
 ---
 
-# 🎉 You're done!
+# 🎉 Done
 
-## Everything you're running
+## What's running
 
-| Layer | Apps | Purpose |
+| Layer | What | Purpose |
 |---|---|---|
-| **Personal Cloud** | Nextcloud, Vaultwarden, Jellyfin | Your digital life |
-| **AI Chat** | Open WebUI + Claude | Ask AI anything, anytime |
-| **AI Coder** | OpenHands + Claude | AI builds code projects for you |
-| **Automation** | n8n + Claude | Connects everything, runs workflows |
-| **Research** | CrewAI + Claude | Teams of AI agents research together |
+| Personal | Vaultwarden, Nextcloud, Jellyfin | Passwords, files, media |
+| AI Chat | Open WebUI + Claude | Your ChatGPT |
+| AI Coder | OpenHands + Claude | Builds software for you |
+| Automation | n8n + Claude | Connects everything |
+| Research | CrewAI + Claude | Multi-agent research teams |
+
+## 💰 Price
+
+**Fixed:** ~€15/month (server €14 + domain €1)
+
+**AI usage (Claude API):**
+
+| How you use it | API cost | Total |
+|---|---|---|
+| Light — few chats, occasional research | ~€5/mo | **~€20/mo** |
+| Medium — daily coding + research | ~€15/mo | **~€30/mo** |
+| Heavy — constant agents running | ~€30+/mo | **~€45+/mo** |
+
+> ChatGPT Plus is $20/month for just a chatbot. This gives you a full cloud + coding agent + research team + automation engine.
 
 ---
 
-## 💰 Price breakdown
+# Quick reference
 
-### One-time costs
+### Manage apps
+`https://coolify.YOURDOMAIN.com` — restart, update, check logs, change settings.
 
-| Item | Cost |
-|---|---|
-| Domain name (Cloudflare) | ~$10/year (~$0.83/month) |
-| **Total one-time** | **~$10/year** |
+### AI Coder
+`https://code.YOURDOMAIN.com` — type what you want in plain English.
 
-### Monthly costs (fixed)
-
-| Item | Cost | What it is |
-|---|---|---|
-| Hetzner CPX31 server | ~€14/month | Your server (4 cores, 8GB RAM, 160GB disk) |
-| Backblaze backups | ~€1/month | Automatic daily backups of everything |
-| **Total fixed** | **~€15/month** |
-
-### Monthly costs (usage-based)
-
-| Usage level | Claude API cost | What that looks like |
-|---|---|---|
-| Light | ~€5/month | A few AI chats per day, occasional CrewAI research |
-| Medium | ~€15/month | Daily AI coding with OpenHands, regular research crews, n8n automations |
-| Heavy | ~€30+/month | Constant OpenHands coding, multiple research crews daily, many automations |
-
-### Total monthly cost
-
-| Scenario | Total |
-|---|---|
-| **Light use** | **~€20/month** |
-| **Medium use** | **~€30/month** |
-| **Heavy use** | **~€45+/month** |
-
-> **For comparison:** ChatGPT Plus alone is $20/month and gives you way less than this. You're getting an entire private cloud + AI coding agent + research team + automation engine.
-
----
-
-# Day-to-day usage
-
-## Managing your apps
-
-Go to `https://coolify.YOURDOMAIN.com` anytime.
-
-| Task | How |
-|---|---|
-| Restart an app | Click the service → **Restart** |
-| Check what went wrong | Click the service → **Logs** |
-| Update an app | Click the service → **Update** |
-| Add a new app | **+ New Resource** → **Service** |
-| Change a setting | Click the service → **Environment Variables** |
-
-## Using OpenHands (AI Coder)
-
-1. Open `https://code.YOURDOMAIN.com`
-2. Type what you want: "Build me a Python script that tracks stock prices"
-3. Watch it work — it writes code, creates files, runs tests, fixes its own mistakes
-4. Download or copy the result
-
-## Using CrewAI (Research Teams)
-
+### Research
 ```bash
 ssh root@YOUR_SERVER_IP
 cd /opt/crewai && source venv/bin/activate && export $(cat .env | xargs)
-python research_crew.py "your research topic here"
+python research_crew.py "your topic"
 ```
 
-## Using n8n (Automations)
+### Automations
+`https://auto.YOURDOMAIN.com` — drag, drop, connect, schedule.
 
-1. Open `https://auto.YOURDOMAIN.com`
-2. Create workflows visually — drag, drop, connect
-3. Trigger manually or set a schedule (hourly, daily, weekly)
-
-## Updating OpenHands
-
-Coolify → click OpenHands → **Redeploy** (pulls the latest version automatically).
+### Update OpenHands
+Coolify → OpenHands → **Redeploy**.
 
 ---
 
-# Adding more power later
+# Scale up later
 
-## More CrewAI teams
-
-Create new scripts in `/opt/crewai/` for different jobs:
-- `trading_crew.py` — analyzes markets and trading strategies
-- `code_review_crew.py` — reviews code for bugs and improvements
-- `content_crew.py` — researches and writes articles or reports
-
-## Upgrade the server
-
-If things feel slow:
-1. Hetzner dashboard → your server → **Resize** → pick a bigger plan
-2. Takes ~30 seconds, no data loss
-3. Recommended upgrade: CPX31 → CPX41 (8 cores, 16GB — ~€28/mo)
-
-## Move to your own hardware
-
-Stop paying monthly forever:
-1. Get a mini PC (~$150 one-time)
-2. Install Coolify on it (same command as Part 2 Step 4)
-3. Restore from backup
-4. Update Cloudflare DNS to your home IP
-5. Cancel Hetzner — monthly server cost drops to €0
-
-See [MIGRATION.md](MIGRATION.md) for the full walkthrough.
+**More power:** Hetzner → server → **Resize** → bigger plan (30 seconds, no data loss).  
+**More research teams:** Create new scripts in `/opt/crewai/` for trading, code review, content, etc.  
+**Go self-hosted:** Buy a mini PC (~$150) → install Coolify → restore backup → cancel Hetzner → €0/month. See [MIGRATION.md](MIGRATION.md).
 
 ---
 
@@ -584,11 +409,10 @@ See [MIGRATION.md](MIGRATION.md) for the full walkthrough.
 
 | Problem | Fix |
 |---|---|
-| App won't load | Coolify → click that service → **Logs** |
+| App won't load | Coolify → service → **Logs** |
 | OpenHands stuck | Coolify → OpenHands → **Redeploy** |
-| CrewAI error | Verify your key: `cat /opt/crewai/.env` — should start with `sk-ant-` |
-| n8n workflow failed | n8n → **Executions** tab → click the failed run → see which step broke |
-| Domain shows "not found" | Cloudflare → DNS → check IP is correct + proxy is OFF (grey cloud, not orange) |
-| "Connection refused" | Wait 2 minutes (app still starting), then refresh |
-| Out of disk space | Hetzner dashboard → server → **Volumes** → add more storage |
-| Something else | Ask Nicara 😊 |
+| CrewAI error | `cat /opt/crewai/.env` — key should start with `sk-ant-` |
+| n8n workflow failed | n8n → **Executions** → click failed run |
+| Domain not working | Cloudflare → DNS → IP correct? Proxy OFF (grey cloud)? |
+| Connection refused | Wait 2 min (still starting), refresh |
+| Out of space | Hetzner → **Volumes** → add storage |
