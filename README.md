@@ -32,10 +32,9 @@ Do this the day before you want to set everything up. Print this or keep it on y
 - [ ] **Cloudflare** — create account, buy a domain (~$10/year) → write down the domain name
 - [ ] **Hetzner** — create account, complete ID verification → write down login
 - [ ] **Anthropic** — create account, create API key, add payment method → write down the key (starts with `sk-ant-`)
-- [ ] **SSH key** — run `ssh-keygen -t ed25519` in terminal, then `cat ~/.ssh/id_ed25519.pub` → copy the output
-- [ ] **Save all 4 things** in one note (domain, Hetzner login, API key, SSH public key)
+- [ ] **Save all 3 things** in one note (domain name, Hetzner login, API key)
 
-That's it. ~30 minutes. Everything else happens on setup day.
+That's it. ~20 minutes. The SSH key is generated on setup day on your new PC.
 
 > ⚠️ **Hetzner ID verification can take up to a day** — that's why you do this the day before. Everything else is instant.
 
@@ -45,7 +44,7 @@ That's it. ~30 minutes. Everything else happens on setup day.
 
 ~30 minutes, all free.
 
-You need **3 accounts** and **1 SSH key**. Save everything in one place (a note, a doc, whatever — you'll need it all in Part 2).
+You need **3 accounts**. Save everything in one place (a note, a doc, whatever — you'll need it all in Part 2).
 
 ---
 
@@ -82,11 +81,17 @@ This single key powers every AI tool in the entire setup.
 
 ---
 
-### 4. SSH key
+> ✅ **Part 1 complete.** You have: domain name, Hetzner login, Anthropic API key. Keep them handy.
 
-This is how your laptop securely connects to your server — like a physical key to a door.
+---
 
-Open a terminal:
+# PART 2 — Server & Coolify
+
+### Step 1 — Generate your SSH key
+
+This is how your PC securely connects to your server — like a physical key to a door.
+
+Open a terminal on your **new PC**:
 - **Mac:** Cmd+Space → type "Terminal" → open it
 - **Windows:** Windows key → type "PowerShell" → open it
 
@@ -102,17 +107,11 @@ Now display it:
 cat ~/.ssh/id_ed25519.pub
 ```
 
-💾 Save: **that entire line of text** (starts with `ssh-ed25519`)
+💾 Copy that entire line (starts with `ssh-ed25519`). You'll paste it in the next step.
 
 ---
 
-> ✅ **Part 1 complete.** You have: domain name, Hetzner login, Anthropic API key, SSH public key. Keep them handy.
-
----
-
-# PART 2 — Server & Coolify
-
-### Step 1 — Create the server
+### Step 2 — Create the server
 
 1. Log into [Hetzner Cloud Console](https://console.hetzner.cloud)
 2. **New Project** → name it `Cloud Home` → open it
@@ -123,7 +122,7 @@ cat ~/.ssh/id_ed25519.pub
 | Location | **Falkenstein** |
 | Image | **Ubuntu 24.04** |
 | Type | **CPX31** — 4 AMD cores, 8GB RAM, 160GB disk |
-| SSH Keys | Click **Add SSH Key** → paste your key from Part 1 → name it `laptop` |
+| SSH Keys | Click **Add SSH Key** → paste your key from Step 1 above → name it `laptop` |
 
 4. Click **Create & Buy Now**
 
@@ -133,7 +132,7 @@ cat ~/.ssh/id_ed25519.pub
 
 ---
 
-### Step 2 — Point your domain to the server
+### Step 3 — Point your domain to the server
 
 1. Log into [Cloudflare](https://cloudflare.com) → click your domain → **DNS** (left menu)
 2. Add **two** DNS records:
@@ -162,7 +161,7 @@ Wait 5 minutes for DNS to propagate.
 
 ---
 
-### Step 3 — Install Coolify
+### Step 4 — Connect and install Coolify
 
 Connect to your server (replace the IP):
 
@@ -190,6 +189,24 @@ http://YOUR_SERVER_IP:8000
 4. Click **Save**
 
 You now have a web-based control panel at `https://coolify.YOURDOMAIN.com`. Every app below is deployed through it.
+
+---
+
+### Step 5 — Lock down your server
+
+Still in the SSH terminal, set up a basic firewall so only the right ports are open:
+
+```bash
+ufw allow 22/tcp    # SSH (so you can still connect)
+ufw allow 80/tcp    # HTTP (for SSL certificate generation)
+ufw allow 443/tcp   # HTTPS (all your apps)
+ufw allow 8000/tcp  # Coolify panel
+ufw --force enable
+```
+
+This blocks everything else — including port 3000 (OpenHands) from being accessed directly by IP. Your apps are only reachable through their proper `https://` domains, which is what you want.
+
+> OpenHands sandboxes still work because Docker internal traffic bypasses the firewall.
 
 ---
 
